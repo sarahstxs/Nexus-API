@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 # Importe o roteador do arquivo que você criou (ajuste o nome do arquivo aqui)
-from src.modules.hero.comic_vine import router 
+from src.modules.comic_vine import router 
 from src.modules.hero.models import hero_router
 
 app = FastAPI()
