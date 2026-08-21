@@ -6,6 +6,7 @@ class Hero(Base):
     __tablename__ = "heroes"
 
     id = Column("id", Integer, primary_key=True, index=True, autoIncrement=True, Nullable=False)
+    active = Column("active", Boolean, Nullable=False)
     name = Column("name", String(50), Nullable=False)
     real_name = Column("real_name", String(100), Nullable=False)
     deck = Column("deck", String(max), Nullable=False)
@@ -18,6 +19,7 @@ class Hero(Base):
     image_hero = Column("image_hero", String(max), Nullable=False)
     nemesis = Column("nemesis", ForeignKey("heroes.id"), Nullable=True)
     rarity = Column("rarity", Integer, Nullable=False)
+    class_hero = Column("class", Integer, ForeignKey("class_hero.id"), Nullable=False)
     hyper_attack = Column("hyper_attack", Integer, ForeignKey("hyper_attacks.id"), Nullable=False)
     base_atk = Column("base_atk", Integer, Nullable=False)
     base_hp = Column("base_hp", Integer, Nullable=False)
