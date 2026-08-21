@@ -1,4 +1,3 @@
-import os
 from sqlalchemy import Column, String, Integer, Boolean, Float, ForeignKey, PrimaryKeyConstraint, DateTime, Nullable
 from core.database import Base
 
