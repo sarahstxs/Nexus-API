@@ -15,13 +15,13 @@ class Hero(Base):
     appearance = Column("apperance", Integer, Nullable=False)
     first_appearance_date = Column("first_appearance_date", DateTime, Nullable=False)
     first_appearance_comic = Column("first_appearance_comic", String(max), Nullable=False)
-    image_hero = Column("image_hero", String(max), nullable=False)
-    nemesis = Column("nemesis", ForeignKey("heroes.id"), nullable=True)
-    rarity = Column("rarity", Integer, nullable=False)
-    hyper_attack = Column("hyper_attack", Integer, ForeignKey("hyper_attacks.id"), nullable=False)
-    base_atk = Column("base_atk", Integer)
-    base_hp = Column("base_hp", Integer)
-    base_def = Column("base_def", Integer)
+    image_hero = Column("image_hero", String(max), Nullable=False)
+    nemesis = Column("nemesis", ForeignKey("heroes.id"), Nullable=True)
+    rarity = Column("rarity", Integer, Nullable=False)
+    hyper_attack = Column("hyper_attack", Integer, ForeignKey("hyper_attacks.id"), Nullable=False)
+    base_atk = Column("base_atk", Integer, Nullable=False)
+    base_hp = Column("base_hp", Integer, Nullable=False)
+    base_def = Column("base_def", Integer, Nullable=False)
 
     def __init__(self, name, real_name, deck, gender, origin, birth, apperance, first_appearance_date, first_appearance_comic, image_hero, nemesis, rarity, hyper_attack, base_atk, base_hp, base_def):
         self.name = name
