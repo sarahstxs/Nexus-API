@@ -1,29 +1,28 @@
-import os
 from sqlalchemy import Column, String, Integer, Boolean, Float, ForeignKey, PrimaryKeyConstraint, DateTime, Nullable
 from core.database import Base
 
 class Hero(Base):
     __tablename__ = "heroes"
 
-    id = Column("id", Integer, primary_key=True, index=True, autoIncrement=True, Nullable=False)
-    active = Column("active", Boolean, Nullable=False)
-    name = Column("name", String(50), Nullable=False)
-    real_name = Column("real_name", String(100), Nullable=False)
-    deck = Column("deck", String(max), Nullable=False)
-    gender = Column("gender", Integer, Nullable=False)
-    origin = Column("origin", Integer, Nullable=False)
-    birth = Column("birth", DateTime, Nullable=True)
-    appearance = Column("apperance", Integer, Nullable=False)
-    first_appearance_date = Column("first_appearance_date", DateTime, Nullable=False)
-    first_appearance_comic = Column("first_appearance_comic", String(max), Nullable=False)
-    image_hero = Column("image_hero", String(max), Nullable=False)
-    nemesis = Column("nemesis", ForeignKey("heroes.id"), Nullable=True)
-    rarity = Column("rarity", Integer, Nullable=False)
-    class_hero = Column("class", Integer, ForeignKey("class_hero.id"), Nullable=False)
-    hyper_attack = Column("hyper_attack", Integer, ForeignKey("hyper_attacks.id"), Nullable=False)
-    base_atk = Column("base_atk", Integer, Nullable=False)
-    base_hp = Column("base_hp", Integer, Nullable=False)
-    base_def = Column("base_def", Integer, Nullable=False)
+    id = Column("id", Integer, primary_key=True, index=True, autoIncrement=True, nullable=False, unique=True)
+    active = Column("active", Boolean, nullable=False, unique=False)
+    name = Column("name", String(50), nullable=False, unique=True)
+    real_name = Column("real_name", String(100), nullable=False, unique=False)
+    deck = Column("deck", String(max), nullable=False, unique=True)
+    gender = Column("gender", Integer, nullable=False, unique=False)
+    origin = Column("origin", Integer, nullable=False, unique=False)
+    birth = Column("birth", DateTime, nullable=True, unique=False)
+    appearance = Column("apperance", Integer, nullable=False, unique=False)
+    first_appearance_date = Column("first_appearance_date", DateTime, nullable=False, unique=False)
+    first_appearance_comic = Column("first_appearance_comic", String(max), nullable=False, unique=False)
+    image_hero = Column("image_hero", String(max), nullable=False, unique=True)
+    nemesis = Column("nemesis", ForeignKey("heroes.id"), nullable=True, unique=False)
+    rarity = Column("rarity", Integer, nullable=False, unique=False)
+    class_hero = Column("class", Integer, ForeignKey("class_hero.id"), nullable=False, unique=False)
+    hyper_attack = Column("hyper_attack", Integer, ForeignKey("hyper_attacks.id"), nullable=False, unique=False)
+    base_atk = Column("base_atk", Integer, nullable=False, unique=False)
+    base_hp = Column("base_hp", Integer, nullable=False, unique=False)
+    base_def = Column("base_def", Integer, nullable=False, unique=False)
 
     def __init__(self, name, real_name, deck, gender, origin, birth, apperance, first_appearance_date, first_appearance_comic, image_hero, nemesis, rarity, hyper_attack, base_atk, base_hp, base_def):
         self.name = name
