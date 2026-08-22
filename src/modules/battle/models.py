@@ -1,9 +1,11 @@
 from sqlalchemy import Column, String, Integer, Boolean, Float, ForeignKey, PrimaryKeyConstraint, DateTime, Nullable
-from core.database import Base
+from src.core.database import Base
 from datetime import datetime
 
 class Battle(Base):
-    id = Column("id", Integer, primary_key=True, index=True, autoIncrement=True, nullable=False, unique=True)
+    __tablename__ = "battles"
+
+    id = Column("id", Integer, primary_key=True, index=True, autoincrement=True, nullable=False, unique=True)
     date = Column("date", DateTime, nullable=False, unique=False)
     floor_reached = Column("floor_reached", Integer, ForeignKey("active_tower_runs.id"), nullable=False, unique=False)
     deck = Column("deck", Integer, ForeignKey("decks.id"), nullable=False, unique=False)

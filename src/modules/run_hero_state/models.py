@@ -1,5 +1,5 @@
 from sqlalchemy import Column, String, Integer, Boolean, Float, ForeignKey, PrimaryKeyConstraint, DateTime, Nullable
-from core.database import Base
+from src.core.database import Base
 
 class RunHEroState(Base):
     __tablename__ = "run_hero_states"

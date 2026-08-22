@@ -1,24 +1,24 @@
 from sqlalchemy import Column, String, Integer, Boolean, Float, ForeignKey, PrimaryKeyConstraint, DateTime, Nullable
-from core.database import Base
+from src.core.database import Base
 
 class Hero(Base):
     __tablename__ = "heroes"
 
-    id = Column("id", Integer, primary_key=True, index=True, autoIncrement=True, nullable=False, unique=True)
+    id = Column("id", Integer, primary_key=True, index=True, autoincrement=True, nullable=False, unique=True)
     active = Column("active", Boolean, nullable=False, unique=False)
-    name = Column("name", String(50), nullable=False, unique=True)
+    name = Column("name", String(1000), nullable=False, unique=True)
     real_name = Column("real_name", String(100), nullable=False, unique=False)
-    deck = Column("deck", String(max), nullable=False, unique=True)
+    deck = Column("deck", String(5000), nullable=False, unique=True)
     gender = Column("gender", Integer, nullable=False, unique=False)
     origin = Column("origin", Integer, nullable=False, unique=False)
     birth = Column("birth", DateTime, nullable=True, unique=False)
     appearance = Column("apperance", Integer, nullable=False, unique=False)
     first_appearance_date = Column("first_appearance_date", DateTime, nullable=False, unique=False)
-    first_appearance_comic = Column("first_appearance_comic", String(max), nullable=False, unique=False)
-    image_hero = Column("image_hero", String(max), nullable=False, unique=True)
+    first_appearance_comic = Column("first_appearance_comic", String(1000), nullable=False, unique=False)
+    image_hero = Column("image_hero", String(1000), nullable=False, unique=True)
     nemesis = Column("nemesis", ForeignKey("heroes.id"), nullable=True, unique=False)
     rarity = Column("rarity", Integer, nullable=False, unique=False)
-    class_hero = Column("class", Integer, ForeignKey("class_hero.id"), nullable=False, unique=False)
+    class_hero = Column("class", Integer, ForeignKey("class_heroes.id"), nullable=False, unique=False)
     hyper_attack = Column("hyper_attack", Integer, ForeignKey("hyper_attacks.id"), nullable=False, unique=False)
     base_atk = Column("base_atk", Integer, nullable=False, unique=False)
     base_hp = Column("base_hp", Integer, nullable=False, unique=False)

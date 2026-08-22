@@ -1,10 +1,10 @@
 from sqlalchemy import Column, String, Integer, Boolean, Float, ForeignKey, PrimaryKeyConstraint, DateTime, Nullable
-from core.database import Base
+from src.core.database import Base
 
 class ActiveTowerRun(Base):
     __tablename__ = "active_tower_runs"
 
-    id = Column("id", Integer, primary_key=True, index=True, autoIncrement=True, nullable=False, unique=True)
+    id = Column("id", Integer, primary_key=True, index=True, autoincrement=True, nullable=False, unique=True)
     type_tower = Column("type_tower", Integer, nullable=False, unique=False)
     current_floor = Column("current_floor", Integer, nullable=False, unique=False)
     active_buff = Column("active_buff", Integer, nullable=False, unique=False)

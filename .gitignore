@@ -1,5 +1,7 @@
+Snippet de código
 .env
 
-/.venv
-/__pycache__
-/venv
+.venv
+__pycache__/
+*.py[cod]
+venv

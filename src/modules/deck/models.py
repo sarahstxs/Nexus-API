@@ -1,11 +1,11 @@
 from sqlalchemy import Column, String, Integer, Boolean, Float, ForeignKey, PrimaryKeyConstraint, DateTime, Nullable
-from core.database import Base
+from src.core.database import Base
 from datetime import datetime
 
 class Deck(Base):
     __tablename__ = "decks"
 
-    id = Column("id", Integer, primary_key=True, index=True, autoIncrement=True, nullable=False, unique=True)
+    id = Column("id", Integer, primary_key=True, index=True, autoincrement=True, nullable=False, unique=True)
     create_date = Column("create_date", DateTime, nullable=False, unique=False)
     user = Column("user", Integer, ForeignKey("users.id"), nullable=False, unique=False)
 
