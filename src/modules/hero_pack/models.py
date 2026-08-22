@@ -2,7 +2,7 @@ from sqlalchemy import Column, String, Integer, Boolean, Float, ForeignKey, Prim
 from core.database import Base
 
 class HeroPack(Base):
-    __tablename__ = "hero_pack"
+    __tablename__ = "hero_packs"
 
     id = Column("id", Integer, primary_key=True, index=True, autoincrement=True, nullable=False, unique=True)
     hero = Column("name", Integer, ForeignKey("heroes.id"), nullable=False, unique=False)

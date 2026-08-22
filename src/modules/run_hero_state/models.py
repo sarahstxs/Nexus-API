@@ -2,6 +2,8 @@ from sqlalchemy import Column, String, Integer, Boolean, Float, ForeignKey, Prim
 from core.database import Base
 
 class RunHEroState(Base):
+    __tablename__ = "run_hero_states"
+
     id = Column("id", Integer, primary_key=True, index=True, autoincrement=True, nullable=False, unique=True)
     current_hp = Column("current_hp", Integer, nullable=False, unique=False)
     drawback = Column("drawback", Integer, nullable=True, unique=False)

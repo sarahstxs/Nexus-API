@@ -3,6 +3,8 @@ from core.database import Base
 from datetime import datetime
 
 class Deck(Base):
+    __tablename__ = "decks"
+
     id = Column("id", Integer, primary_key=True, index=True, autoIncrement=True, nullable=False, unique=True)
     create_date = Column("create_date", DateTime, nullable=False, unique=False)
     user = Column("user", Integer, ForeignKey("users.id"), nullable=False, unique=False)
