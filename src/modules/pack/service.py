@@ -16,10 +16,12 @@ async def listAllPacks(session: Session):
 async def createPack(session: Session, pack_schema: PackSchema):
     name = pack_schema.name,
     deck = pack_schema.deck
+    active = pack_schema.active
 
     new_pack = {
         "name": name,
-        "deck": deck
+        "deck": deck,
+        "active": active
     }
     
     final_pack = Pack(**new_pack)
@@ -28,5 +30,13 @@ async def createPack(session: Session, pack_schema: PackSchema):
     session.refresh(final_pack)
     return {"mensagem": f"Pacote cadastrado com sucesso "}
 
-async def deletePack(session: Session):
+async def deletePack(session: Session, id_pack: int):
+    pack = session.query(Pack).filter(Pack.id == id_pack).first()
+
+    if not pack:
+        raise HTTPException(status_code=404, detail="Pacote não encontrado!")
     
+    pack.active = False
+    session.commit()
+    return {"mensagem": "Pacote desativado com sucesso!",
+            "Pacote": pack}
