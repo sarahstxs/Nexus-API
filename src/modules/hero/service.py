@@ -99,7 +99,7 @@ async def createHero(hero_schema_user: HeroSchemaUser, session: Session = Depend
     if not api_data:
         raise HTTPException(status_code=404, detail="Personagem não encontrado na Comic Vine.")
     
-    # Pega o primeiro resultado que a API achou
+    # o primeiro resultado que a API achou
     first_result = api_data[0]
 
     origin_data = first_result.get("origin") or {}

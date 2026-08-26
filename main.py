@@ -3,9 +3,11 @@ from fastapi import FastAPI
 # from src.modules.comic_vine import router 
 from src.modules.comic_vine import router
 from src.modules.hero.router import hero_routes
+from src.modules.pack.router import pack_routes
 
 app = FastAPI()
 
 # É esta linha que faz a aba aparecer no /docs!
 app.include_router(router)
 app.include_router(hero_routes)
+app.include_router(pack_routes)
