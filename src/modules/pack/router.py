@@ -5,7 +5,7 @@ from src.modules.pack.schemas import PackSchema
 from sqlalchemy.orm import Session
 from src.common.dependencies import get_session
 
-pack_routes = APIRouter(prefix="/packs", tags=["pack"])
+pack_routes = APIRouter(prefix="/packs", tags=["packs"])
 
 @pack_routes.get("/")
 async def hero():

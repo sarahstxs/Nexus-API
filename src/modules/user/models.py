@@ -9,7 +9,7 @@ class User(Base):
     password = Column("password", String(100), nullable=False, unique=False)
     phone = Column("phone", String(25), nullable=True, unique=True)
     email = Column("email", String(100), nullable=False, unique=True)
-    admin = Column("admin", Boolean, nullable=False, unique=False)
+    admin = Column("admin", Boolean, nullable=False, unique=False, default=False)
     active = Column("active", Boolean,nullable=False, unique=False)
     highest_level = Column("highest_level", Integer, ForeignKey("active_tower_runs.id"), unique=False)
     coins = Column("coins", Integer, nullable=False, unique=False)

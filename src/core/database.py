@@ -14,3 +14,5 @@ db = create_engine(DATABASE_URL)
 
 #Cria a conexão com o banco
 Base = declarative_base()
+
+engine = create_engine(DATABASE_URL)
