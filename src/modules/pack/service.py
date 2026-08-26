@@ -40,3 +40,7 @@ async def deletePack(session: Session, id_pack: int):
     session.commit()
     return {"mensagem": "Pacote desativado com sucesso!",
             "Pacote": pack}
+
+async def listPack(session: Session, id_pack: int):
+    pack = session.query(Pack).filter(Pack.id == id_pack).first()
+    return pack
