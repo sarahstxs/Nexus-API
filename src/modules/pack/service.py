@@ -27,3 +27,6 @@ async def createPack(session: Session, pack_schema: PackSchema):
     session.commit()
     session.refresh(final_pack)
     return {"mensagem": f"Pacote cadastrado com sucesso "}
+
+async def deletePack(session: Session):
+    

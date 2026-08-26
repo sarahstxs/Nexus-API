@@ -8,8 +8,10 @@ class RunHEroState(Base):
     current_hp = Column("current_hp", Integer, nullable=False, unique=False)
     drawback = Column("drawback", Integer, nullable=True, unique=False)
     alive = Column("alive", Boolean, nullable=False, unique=False)
+    active = Column("active", Boolean, nullable=False, unique=False)
 
-    def __init__(self, current_hp, drawback, alive):
+    def __init__(self, current_hp, drawback, alive, active):
         self.current_hp = current_hp
         self.drawback = drawback
         self.alive = alive
+        self.active = active

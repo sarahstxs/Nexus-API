@@ -8,8 +8,10 @@ class UserHero(Base):
         hero = Column("hero", Integer, ForeignKey("heroes.id"), nullable=False, unique=False)
         level = Column("level", Integer, nullable=False, unique=False)
         fragments = Column("fragments", Integer, nullable=False, unique=False)
+        active = Column("active", Boolean, nullable=False, unique=False)
 
-        def __init__(self,hero, level=1, fragments=0):
+        def __init__(self,hero, active, level=1, fragments=0):
                 self.hero = hero
                 self.level = level
                 self.fragments = fragments
+                self.active = active

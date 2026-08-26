@@ -19,7 +19,6 @@ async def listPacks(session: Session = Depends(get_session)):
 @pack_routes.post("/create-pack")
 async def CreatePack(
     pack: PackSchema, 
-    session: Session = Depends(get_session)
-):
+    session: Session = Depends(get_session)):
     result = await createPack(pack_schema=pack, session=session)
     return result

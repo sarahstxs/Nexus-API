@@ -7,7 +7,9 @@ class Pack(Base):
     id = Column("id", Integer, primary_key=True, index=True, autoincrement=True, nullable=False, unique=True)
     name = Column("name", String(50), nullable=False, unique=True)
     deck = Column("deck", String(5000), nullable=False, unique=True)
+    active = Column("active", Boolean, nullable=False, unique=False)
 
-    def __init__(self, name, deck):
+    def __init__(self, name, deck, active):
         self.name = name
         self.deck = deck
+        self.active = active

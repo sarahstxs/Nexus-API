@@ -9,9 +9,11 @@ class ActiveTowerRun(Base):
     current_floor = Column("current_floor", Integer, nullable=False, unique=False)
     active_buff = Column("active_buff", Integer, nullable=False, unique=False)
     place = Column("place", Integer, ForeignKey("places.id"), nullable=False, unique=False)
+    active = Column("active", Boolean, nullable=False, unique=False)
 
-    def __init__(self, type_tower, current_floor, active_buff, place):
+    def __init__(self, type_tower, current_floor, active_buff, place, active):
         self.type_tower = type_tower
         self.current_floor = current_floor
         self.active_buff = active_buff
         self.place = place
+        self.active = active

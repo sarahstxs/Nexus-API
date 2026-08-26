@@ -8,8 +8,10 @@ class Place(Base):
     name = Column("name", String(50), nullable=False, unique=False)
     image = Column("image", String(1000), nullable=False, unique=False)
     effect = Column("effect", Integer, nullable=False, unique=False)
+    active = Column("active", Boolean, nullable=False, unique=False)
 
-    def __init__(self, name, image, effect):
+    def __init__(self, name, image, effect, active):
         self.name = name
         self.image = image
         self.effect = effect
+        self.active = active
