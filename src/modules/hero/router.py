@@ -6,7 +6,7 @@ from src.modules.hero.schemas import HeroSchemaUser
 from sqlalchemy.orm import Session
 from src.common.dependencies import get_session
 
-hero_routes = APIRouter(prefix="/hero", tags=["hero"])
+hero_routes = APIRouter(prefix="/heroes", tags=["heroes"])
 
 @hero_routes.get("/")
 async def hero():

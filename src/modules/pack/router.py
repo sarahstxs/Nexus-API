@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 import httpx
 from src.modules.pack.service import listAllPacks, createPack, deletePack, listPack
+from src.modules.user.service import verificate_token
 from src.modules.pack.schemas import PackSchema
 from sqlalchemy.orm import Session
 from src.common.dependencies import get_session
 
 pack_routes = APIRouter(prefix="/packs", tags=["packs"])
-
+# 
 @pack_routes.get("/")
 async def hero():
     return {"mensagem": "Você acessou a rota de pacotes!"}
@@ -24,12 +25,16 @@ async def ListPack(id_pack: int, session: Session = Depends(get_session)):
 @pack_routes.post("/")
 async def CreatePack(
     pack: PackSchema, 
-    session: Session = Depends(get_session)):
-    result = await createPack(pack_schema=pack, session=session)
+    session: Session = Depends(get_session),
+    user = Depends(verificate_token) 
+    ):
+    result = await createPack(pack_schema=pack, session=session, user=user)
     return result
 
 @pack_routes.patch("/{id}")
-async def DeletePack(id_pack: int, session: Session = Depends(get_session)):
-    result = await deletePack(id_pack=id_pack, session=session)
+async def DeletePack(id_pack: int,
+                      session: Session = Depends(get_session),
+                      user = Depends(verificate_token) ):
+    result = await deletePack(id_pack=id_pack, session=session, user=user)
     return result
 

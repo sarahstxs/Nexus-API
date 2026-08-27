@@ -13,7 +13,10 @@ async def listAllPacks(session: Session):
     list = session.query(Pack).all()
     return {"Packs": list}
 
-async def createPack(session: Session, pack_schema: PackSchema):
+async def createPack(session, pack_schema, user):
+    if not user.admin:
+        raise HTTPException(status_code=403,detail="Você não tem permissão para criar pacotes!")
+    
     name = pack_schema.name,
     deck = pack_schema.deck
     active = pack_schema.active
@@ -30,7 +33,10 @@ async def createPack(session: Session, pack_schema: PackSchema):
     session.refresh(final_pack)
     return {"mensagem": f"Pacote cadastrado com sucesso "}
 
-async def deletePack(session: Session, id_pack: int):
+async def deletePack(session, id_pack, user):
+    if not user.admin:
+        raise HTTPException(status_code=403,detail="Você não tem permissão para desativar esse pacote")
+    
     pack = session.query(Pack).filter(Pack.id == id_pack).first()
 
     if not pack:
