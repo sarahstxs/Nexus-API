@@ -5,11 +5,12 @@ from src.modules.pack.schemas import PackSchema
 from src.common.dependencies import get_session
 from sqlalchemy.orm import Session
 from src.modules.pack.models import Pack
+from src.modules.hero_pack.models import HeroPack
 from dotenv import load_dotenv
 
 load_dotenv()
 
-async def listAllPacks(session: Session):
+async def listAllPacks(session):
     list = session.query(Pack).all()
     return {"Packs": list}
 
@@ -47,6 +48,14 @@ async def deletePack(session, id_pack, user):
     return {"mensagem": "Pacote desativado com sucesso!",
             "Pacote": pack}
 
-async def listPack(session: Session, id_pack: int):
+async def listPack(session, id_pack):
     pack = session.query(Pack).filter(Pack.id == id_pack).first()
     return pack
+
+async def listHeroPack(session, id_hero_pack):
+    hero_pack = session.query(HeroPack).filter(HeroPack.id == id_hero_pack).first()
+    return hero_pack
+
+async def listAllHeroPack(session):
+    list_hero_pack = session.query(HeroPack).all()
+    return {"Hero_packs": list_hero_pack}
