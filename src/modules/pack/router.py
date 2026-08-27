@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from src.common.dependencies import get_session
 
 pack_routes = APIRouter(prefix="/packs", tags=["packs"])
-# 
+#
 @pack_routes.get("/")
 async def hero():
     return {"mensagem": "Você acessou a rota de pacotes!"}

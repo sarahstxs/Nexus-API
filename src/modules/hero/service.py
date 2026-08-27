@@ -1,10 +1,10 @@
 import os
 import httpx
 from fastapi import APIRouter, Depends, HTTPException
-from src.modules.hero.schemas import HeroSchemaUser
 from src.common.dependencies import get_session, verificate_token
 from sqlalchemy.orm import Session
 from src.modules.hero.models import Hero
+from src.modules.hero_pack.models import HeroPack
 from src.modules.user.models import User
 from dotenv import load_dotenv
 
@@ -137,3 +137,20 @@ async def createHero(hero_schema_user, session, user):
     session.refresh(new_hero)
     return {"mensagem": f"Herói cadastrado com sucesso "}
     
+async def addHeroPack(hero_pack_schema, session, user, id_hero):
+    if not user.admin:
+        raise HTTPException(status_code=403, detail="Você não tem permissão para adicionar um herói em um pacote!")
+    hero = id_hero
+    pack = hero_pack_schema.pack
+    active = hero_pack_schema.active
+
+    new_hero_pack = {
+        "hero": hero,
+        "pack": pack,
+        "active": active
+    }
+    final_hero_pack = HeroPack(**new_hero_pack)
+    session.add(final_hero_pack)
+    session.commit()
+    session.refresh(final_hero_pack)
+    return {"mensagem": f"Herói cadastrado no pacote com sucesso "}
