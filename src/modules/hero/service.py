@@ -2,9 +2,10 @@ import os
 import httpx
 from fastapi import APIRouter, Depends, HTTPException
 from src.modules.hero.schemas import HeroSchemaUser
-from src.common.dependencies import get_session
+from src.common.dependencies import get_session, verificate_token
 from sqlalchemy.orm import Session
 from src.modules.hero.models import Hero
+from src.modules.user.models import User
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -72,7 +73,10 @@ async def listAllHeroes(meta_personagem: int):
         "personagens": heroes_list
         }
 
-async def createHero(hero_schema_user: HeroSchemaUser, session: Session = Depends(get_session)):
+async def createHero(hero_schema_user, session, user):
+    if not user.admin:
+        raise HTTPException(status_code=403,detail="Você não tem permissão para criar esse herói")
+    
     id = hero_schema_user.id
     active = hero_schema_user.active
     nemesis = hero_schema_user.nemesis

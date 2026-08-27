@@ -15,4 +15,4 @@ app = FastAPI()
 
 # Criptografando 
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_schema = OAuth2PasswordBearer(tokenUrl="auth/login-form")
+oauth2_schema = OAuth2PasswordBearer(tokenUrl="users/login-form")

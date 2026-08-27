@@ -1,14 +1,16 @@
 import os
 import httpx
 from fastapi import APIRouter, Depends, HTTPException
-from src.common.dependencies import get_session
+from src.common.dependencies import get_session, verificate_token
 from sqlalchemy.orm import Session
 from src.modules.user.models import User
-from src.modules.user.schemas import UserSchema
+from src.modules.user.schemas import UserSchema, LoginSchema
 from dotenv import load_dotenv
 from datetime import datetime, timedelta, timezone
 from src.core.config import bcrypt_context, ACESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY
 from jose import jwt, JWTError
+from fastapi.security import OAuth2PasswordRequestForm
+
 
 load_dotenv()
 
@@ -54,3 +56,36 @@ async def createUser(user_schema: UserSchema, session = Depends(get_session)):
         session.commit()
         return {"mensagem": f"Usuário {user_schema.username} cadastrado com sucesso "}
     
+async def login(login_schema: LoginSchema, session = Depends(get_session)):
+    user = autenticate_user(login_schema.email, login_schema.password, session)
+
+    if not user:
+        raise HTTPException(status_code=400, detail= "Usuário não encontrado ou credenciais inválidas!")
+    else:
+        access_token = create_token(str(user.id))
+        refresh_token = create_token(str(user.id), duration_token=timedelta(days=7))
+        return {
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "Bearer"
+        }
+    
+async def loginForm(data_form: OAuth2PasswordRequestForm = Depends(), session: Session = Depends(get_session)):
+    user = autenticate_user(data_form.username, data_form.password, session)
+
+    if not user:
+        raise HTTPException(status_code=400, detail= "Usuário não encontrado ou credenciais inválidas!")
+    else:
+        access_token = create_token(str(user.id))
+        return {
+            "access_token": access_token,
+            "token_type": "Bearer"
+        }
+    
+async def use_refresh_token(user: User = Depends(verificate_token)):
+    #Verificar token
+    access_token = create_token(str(user.id))
+    return {
+            "access_token": access_token,
+            "token_type": "Bearer"
+        }
