@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 import httpx
-from src.modules.hero.service import listAllHeroes, createHero, addHeroPack
+from src.modules.hero.service import listAllHeroes, createHero, addHeroPack, desativateHeroPack
 from src.modules.user.service import verificate_token
 from src.modules.hero.schemas import HeroSchemaUser
 from src.modules.hero_pack.schemas import HeroPackSchema
@@ -28,6 +28,9 @@ async def CreateHero(
     result = await createHero(hero_schema_user=hero, session=session, user=user)
     return result
 
+
+#* Hero_pack routes
+
 @hero_routes.post("/create-hero-pack/{id_hero}")
 async def AddHeroPack(
     hero_pack: HeroPackSchema,
@@ -36,4 +39,12 @@ async def AddHeroPack(
     id_hero = int
 ):
     result = await addHeroPack(hero_pack_schema=hero_pack, session=session, user=user, id_hero=id_hero)
+    return result
+
+@hero_routes.patch("/{id}")
+async def DesativateHeroPack(id_hero_pack: int, 
+                            user = Depends(verificate_token),
+                            session: Session = Depends(get_session)
+                            ):
+    result = await desativateHeroPack(id_hero_pack=id_hero_pack, user=user, session=session)
     return result

@@ -34,7 +34,7 @@ async def createPack(session, pack_schema, user):
     session.refresh(final_pack)
     return {"mensagem": f"Pacote cadastrado com sucesso "}
 
-async def deletePack(session, id_pack, user):
+async def desativatePack(session, id_pack, user):
     if not user.admin:
         raise HTTPException(status_code=403,detail="Você não tem permissão para desativar esse pacote")
     

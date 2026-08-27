@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 import httpx
-from src.modules.pack.service import listAllPacks, createPack, deletePack, listPack, listHeroPack, listAllHeroPack
+from src.modules.pack.service import listAllPacks, createPack, desativatePack, listPack, listHeroPack, listAllHeroPack
 from src.modules.user.service import verificate_token
 from src.modules.pack.schemas import PackSchema
 from sqlalchemy.orm import Session
@@ -32,10 +32,10 @@ async def CreatePack(
     return result
 
 @pack_routes.patch("/{id}")
-async def DeletePack(id_pack: int,
+async def DesativatePack(id_pack: int,
                       session: Session = Depends(get_session),
                       user = Depends(verificate_token) ):
-    result = await deletePack(id_pack=id_pack, session=session, user=user)
+    result = await desativatePack(id_pack=id_pack, session=session, user=user)
     return result
 
 @pack_routes.get("/list-hero-pack/{id}")

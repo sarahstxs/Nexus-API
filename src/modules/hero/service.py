@@ -154,3 +154,17 @@ async def addHeroPack(hero_pack_schema, session, user, id_hero):
     session.commit()
     session.refresh(final_hero_pack)
     return {"mensagem": f"Herói cadastrado no pacote com sucesso "}
+
+async def desativateHeroPack(session, id_hero_pack, user):
+    if not user.admin:
+        raise HTTPException(status_code=403,detail="Você não tem permissão para desativar esse pacote")
+    
+    hero_pack = session.query(HeroPack).filter(HeroPack.id == id_hero_pack).first()
+
+    if not hero_pack:
+        raise HTTPException(status_code=404, detail="Pacote não encontrado!")
+    
+    hero_pack.active = False
+    session.commit()
+    return {"mensagem": "Herói em pacote desativado com sucesso!",
+            "Pacote": hero_pack}
