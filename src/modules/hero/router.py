@@ -29,7 +29,7 @@ async def CreateHero(
     return result
 
 
-#* Hero_pack routes
+###################* Hero_pack routes *######################
 
 @hero_routes.post("/create-hero-pack/{id_hero}")
 async def AddHeroPack(

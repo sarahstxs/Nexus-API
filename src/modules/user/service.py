@@ -11,7 +11,6 @@ from src.core.config import bcrypt_context, ACESS_TOKEN_EXPIRE_MINUTES, ALGORITH
 from jose import jwt, JWTError
 from fastapi.security import OAuth2PasswordRequestForm
 
-
 load_dotenv()
 
 def create_token(id_user: str, duration_token: int = timedelta(minutes=ACESS_TOKEN_EXPIRE_MINUTES)):

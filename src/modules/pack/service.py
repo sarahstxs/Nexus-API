@@ -48,6 +48,20 @@ async def desativatePack(session, id_pack, user):
     return {"mensagem": "Pacote desativado com sucesso!",
             "Pacote": pack}
 
+async def activatePack(session, id_pack, user):
+    if not user.admin:
+        raise HTTPException(status_code=403,detail="Você não tem permissão para ativar esse pacote")
+    
+    pack = session.query(Pack).filter(Pack.id == id_pack).first()
+
+    if not pack:
+        raise HTTPException(status_code=404, detail="Pacote não encontrado!")
+    
+    pack.active = True
+    session.commit()
+    return {"mensagem": "Pacote ativado com sucesso!",
+            "Pacote": pack}
+
 async def listPack(session, id_pack):
     pack = session.query(Pack).filter(Pack.id == id_pack).first()
     return pack
