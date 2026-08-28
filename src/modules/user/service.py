@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from src.common.dependencies import get_session, verificate_token
 from sqlalchemy.orm import Session
 from src.modules.user.models import User
+from src.modules.active_tower_run.models import ActiveTowerRun
 from src.modules.user.schemas import UserSchema, LoginSchema
 from dotenv import load_dotenv
 from datetime import datetime, timedelta, timezone
@@ -100,3 +101,58 @@ async def listActiveHyperAttackByName(session, name_user):
     ).all()
     
     return user
+
+async def listAllUsers(session, user):
+    if not user.admin:
+        raise HTTPException(status_code=403,detail="Você não tem permissão para listar usuários")
+    
+    list = session.query(User).all()
+    return {"Usuários": list}
+
+async def listUSer(session, id_user, user):
+    if not user.admin:
+        raise HTTPException(status_code=403,detail="Você não tem permissão para listar usuário")
+    
+    user = session.query(User).filter(User.id == id_user).first()
+    return user
+
+async def upHighestLevel(session, id_user, user):
+    if not user.admin:
+        raise HTTPException(status_code=403, detail="Você não ter permissão para subir usuário de nível!")
+    
+    user = session.query(User).filter(User.id == id_user).first()
+    next_level = user.highest_level + 1
+    level = session.query(ActiveTowerRun).filter(ActiveTowerRun.current_floor == next_level).first()
+    if level:
+        user.highest_level = next_level
+        session.commit()
+        return {"mensagem": "O usuário subiu de nível"}
+    return {"mensagem": "O usuário ja esta no nível mais alto!"}
+    
+async def desativateUser(session, id_user, user):
+    if not user.admin:
+        raise HTTPException(status_code=403,detail="Você não tem permissão para desativar esse usuário")
+    
+    user = session.query(User).filter(User.id == id_user).first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado!")
+    
+    user.active = False
+    session.commit()
+    return {"mensagem": "Usuário desativado com sucesso!",
+            "usuário": user}
+
+async def activateUser(session, id_user, user):
+    if not user.admin:
+        raise HTTPException(status_code=403,detail="Você não tem permissão para ativar esse usuário")
+    
+    user = session.query(User).filter(User.id == id_user).first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado!")
+    
+    user.active = True
+    session.commit()
+    return {"mensagem": "Usuário ativado com sucesso!",
+            "Usuário": user}

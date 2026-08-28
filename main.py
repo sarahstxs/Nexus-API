@@ -7,6 +7,7 @@ from src.modules.pack.router import pack_routes
 from src.modules.user.router import user_routes
 from src.modules.class_hero.router import class_routes
 from src.modules.hyper_attack.router import hyper_attack_routes
+from src.modules.active_tower_run.router import active_tower_run
 from dotenv import load_dotenv
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
@@ -23,6 +24,7 @@ app.include_router(pack_routes)
 app.include_router(user_routes)
 app.include_router(class_routes)
 app.include_router(hyper_attack_routes)
+app.include_router(active_tower_run)
 
 # 1. Importe TODOS os seus modelos aqui no main.py
 from src.modules.user.models import User

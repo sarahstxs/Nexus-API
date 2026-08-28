@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 import httpx
 from src.modules.user.models import User
-from src.modules.user.service import createUser, login, loginForm, use_refresh_token, listActiveHyperAttackByName, listActiveUser
+from src.modules.user.service import createUser, login, loginForm, use_refresh_token, listActiveHyperAttackByName, listActiveUser, listAllUsers, listUSer, activateUser, desativateUser, upHighestLevel
 from src.modules.user.schemas import UserSchema, LoginSchema
 from sqlalchemy.orm import Session
 from src.common.dependencies import get_session, verificate_token
@@ -51,4 +51,35 @@ async def ListActiveUser(session: Session = Depends(get_session)):
 @user_routes.get("/list-active-name/{name_pack}")
 async def ListActiveClassByName(name_user: str, session: Session = Depends(get_session)):
     result = await listActiveHyperAttackByName(session=session, name_user=name_user)
+    return result
+
+@user_routes.get("/list")
+async def ListAllUsers(session: Session = Depends(get_session),user = Depends(verificate_token)):
+    result = await listAllUsers(session, user=user)
+    return result
+
+@user_routes.get("/list/{id}")
+async def ListUser(id_user: int, session: Session = Depends(get_session), user = Depends(verificate_token)):
+    result = await listUSer(id_user=id_user, session=session, user=user)
+    return result
+
+@user_routes.patch("/desativate/{id}")
+async def DesativateUser(id_user: int,
+                      session: Session = Depends(get_session),
+                      user = Depends(verificate_token) ):
+    result = await desativateUser(id_user=id_user, session=session, user=user)
+    return result
+
+@user_routes.patch("/activate/{id}")
+async def ActivateUser(id_user: int,
+                      session: Session = Depends(get_session),
+                      user = Depends(verificate_token) ):
+    result = await activateUser(id_user=id_user, session=session, user=user)
+    return result
+
+@user_routes.patch("/up-level/{id}")
+async def UpHighestLevel(id_user: int,
+                      session: Session = Depends(get_session),
+                      user = Depends(verificate_token) ):
+    result = await upHighestLevel(id_user=id_user, session=session, user=user)
     return result
