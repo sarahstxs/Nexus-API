@@ -88,3 +88,15 @@ async def use_refresh_token(user: User = Depends(verificate_token)):
             "access_token": access_token,
             "token_type": "Bearer"
         }
+
+async def listActiveUser(session):
+    user = session.query(User).filter(User.active == True).all()
+    return user
+
+async def listActiveHyperAttackByName(session, name_user):
+    user = session.query(User).filter(
+        User.username.icontains(name_user),
+        User.active == True
+    ).all()
+    
+    return user

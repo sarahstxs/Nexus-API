@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 import httpx
 from src.modules.user.models import User
-from src.modules.user.service import createUser, login, loginForm, use_refresh_token
+from src.modules.user.service import createUser, login, loginForm, use_refresh_token, listActiveHyperAttackByName, listActiveUser
 from src.modules.user.schemas import UserSchema, LoginSchema
 from sqlalchemy.orm import Session
 from src.common.dependencies import get_session, verificate_token
@@ -41,4 +41,14 @@ async def LoginForm(data_form: OAuth2PasswordRequestForm = Depends(), session: S
 @user_routes.get("/refresh")
 async def UseRefreshToken(user:User = Depends(verificate_token)):
     result = await use_refresh_token(user=user)
+    return result
+
+@user_routes.get("/list-active")
+async def ListActiveUser(session: Session = Depends(get_session)):
+    result = await listActiveUser(session=session)
+    return result
+
+@user_routes.get("/list-active-name/{name_pack}")
+async def ListActiveClassByName(name_user: str, session: Session = Depends(get_session)):
+    result = await listActiveHyperAttackByName(session=session, name_user=name_user)
     return result
