@@ -22,9 +22,9 @@ async def ListPack(id_pack: int, session: Session = Depends(get_session)):
     result = await listPack(id_pack=id_pack, session=session)
     return result
 
-@pack_routes.get("/list-active/{id}")
-async def ListActivePack(id_pack: int, session: Session = Depends(get_session)):
-    result = await listActivePack(id_pack=id_pack, session=session)
+@pack_routes.get("/list-active")
+async def ListActivePack(session: Session = Depends(get_session)):
+    result = await listActivePack(session=session)
     return result
 
 @pack_routes.get("/list-active-name/{name_pack}")

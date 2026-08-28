@@ -66,3 +66,15 @@ async def activateHyperAttack(session, id_hyper_attack, user):
     session.commit()
     return {"mensagem": "Hiper ataque ativado com sucesso!",
             "Hiper Ataque": hyper_attack}
+
+async def listActiveHyperAttack(session):
+    hyper_attack = session.query(HyperAttack).filter(HyperAttack.active == True).all()
+    return hyper_attack
+
+async def listActiveHyperAttackByName(session, name_hyper_attack):
+    hyper_attack = session.query(HyperAttack).filter(
+        HyperAttack.name.contains(name_hyper_attack),
+        HyperAttack.active == True
+    ).all()
+    
+    return hyper_attack

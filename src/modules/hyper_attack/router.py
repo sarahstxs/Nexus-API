@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 import httpx
-from src.modules.hyper_attack.service import listAllHyperAttacks, createHyperAttack, desativateHyperAttack, listHyperAttacks, activateHyperAttack
+from src.modules.hyper_attack.service import listAllHyperAttacks, createHyperAttack, desativateHyperAttack, listHyperAttacks, activateHyperAttack, listActiveHyperAttack, listActiveHyperAttackByName
 from src.modules.user.service import verificate_token
 from src.modules.hyper_attack.schemas import HyperAttackSchema
 from sqlalchemy.orm import Session
@@ -43,4 +43,14 @@ async def ActivateClass(id_hyper_attack: int,
                       session: Session = Depends(get_session),
                       user = Depends(verificate_token) ):
     result = await activateHyperAttack(id_hyper_attack=id_hyper_attack, session=session, user=user)
+    return result
+
+@hyper_attack_routes.get("/list-active")
+async def ListActivePack(session: Session = Depends(get_session)):
+    result = await listActiveHyperAttack(session=session)
+    return result
+
+@hyper_attack_routes.get("/list-active-name/{name_pack}")
+async def ListActivePackByName(name_hyper_attack: str, session: Session = Depends(get_session)):
+    result = await listActiveHyperAttackByName(session=session, name_hyper_attack=name_hyper_attack)
     return result

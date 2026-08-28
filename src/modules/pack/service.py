@@ -66,9 +66,9 @@ async def listPack(session, id_pack):
     pack = session.query(Pack).filter(Pack.id == id_pack).first()
     return pack
 
-async def listActivePack(session, id_pack):
-    pack = session.query(Pack).filter(Pack.id == id_pack and Pack.active == True).first()
-    return pack
+async def listActivePack(session):
+    pack = session.query(Pack).filter(Pack.active == True).all()
+    return {"Packs": pack}
 
 async def listActivePackByName(session, name_pack):
     packs = session.query(Pack).filter(
