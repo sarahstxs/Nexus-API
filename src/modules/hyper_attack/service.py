@@ -73,7 +73,7 @@ async def listActiveHyperAttack(session):
 
 async def listActiveHyperAttackByName(session, name_hyper_attack):
     hyper_attack = session.query(HyperAttack).filter(
-        HyperAttack.name.contains(name_hyper_attack),
+        HyperAttack.name.icontains(name_hyper_attack),
         HyperAttack.active == True
     ).all()
     

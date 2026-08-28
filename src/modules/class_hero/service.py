@@ -68,3 +68,15 @@ async def activateClass(session, id_class, user):
     session.commit()
     return {"mensagem": "Classe ativada com sucesso!",
             "Classe": class_hero}
+
+async def listActiveClass(session):
+    class_hero = session.query(ClassHero).filter(ClassHero.active == True).all()
+    return class_hero
+
+async def listActiveClassByName(session, name_class):
+    class_hero = session.query(ClassHero).filter(
+        ClassHero.name.icontains(name_class),
+        ClassHero.active == True
+    ).all()
+    
+    return class_hero

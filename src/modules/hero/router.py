@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 import httpx
-from src.modules.hero.service import listAllHeroes, createHero, addHeroPack, desativateHeroPack, activateHero, activateHeroPack, desativateHero, listHero
+from src.modules.hero.service import listAllHeroes, createHero, addHeroPack, desativateHeroPack, activateHero, activateHeroPack, desativateHero, listHero,listActiveHero, listActiveHeroByName
 from src.modules.user.service import verificate_token
 from src.modules.hero.schemas import HeroSchemaUser
 from src.modules.hero_pack.schemas import HeroPackSchema
@@ -75,4 +75,14 @@ async def ActivateHeroPack(id_hero_pack: int,
                             session: Session = Depends(get_session)
                             ):
     result = await activateHeroPack(id_hero_pack=id_hero_pack, user=user, session=session)
+    return result
+
+@hero_routes.get("/list-active")
+async def ListActiveHero(session: Session = Depends(get_session)):
+    result = await listActiveHero(session=session)
+    return result
+
+@hero_routes.get("/list-active-name/{name_hero}")
+async def ListActiveHerpByName(name_hero: str, session: Session = Depends(get_session)):
+    result = await listActiveHeroByName(session=session, name_hero=name_hero)
     return result

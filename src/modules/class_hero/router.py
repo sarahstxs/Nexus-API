@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 import httpx
-from src.modules.class_hero.service import listAllClasses, createClass, desativateClass, listClass, activateClass
+from src.modules.class_hero.service import listAllClasses, createClass, desativateClass, listClass, activateClass, listActiveClass, listActiveClassByName
 from src.modules.user.service import verificate_token
 from src.modules.class_hero.schemas import ClassSchema
 from sqlalchemy.orm import Session
@@ -43,4 +43,14 @@ async def ActivateClass(id_class: int,
                       session: Session = Depends(get_session),
                       user = Depends(verificate_token) ):
     result = await activateClass(id_class=id_class, session=session, user=user)
+    return result
+
+@class_routes.get("/list-active")
+async def ListActiveClass(session: Session = Depends(get_session)):
+    result = await listActiveClass(session=session)
+    return result
+
+@class_routes.get("/list-active-name/{name_class}")
+async def ListActiveClassByName(name_class: str, session: Session = Depends(get_session)):
+    result = await listActiveClassByName(session=session, name_class=name_class)
     return result

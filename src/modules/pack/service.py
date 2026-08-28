@@ -72,7 +72,7 @@ async def listActivePack(session):
 
 async def listActivePackByName(session, name_pack):
     packs = session.query(Pack).filter(
-        Pack.name.contains(name_pack),
+        Pack.name.icontains(name_pack),
         Pack.active == True
     ).all()
     

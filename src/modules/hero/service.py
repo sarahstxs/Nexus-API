@@ -214,3 +214,15 @@ async def activateHero(session, id_hero, user):
     session.commit()
     return {"mensagem": "Herói ativado com sucesso!",
             "Herói": hero}
+
+async def listActiveHero(session):
+    hero = session.query(Hero).filter(Hero.active == True).all()
+    return hero
+
+async def listActiveHeroByName(session, name_hero):
+    hero = session.query(Hero).filter(
+        Hero.name.icontains(name_hero),
+        Hero.active == True
+    ).all()
+    
+    return hero
