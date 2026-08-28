@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 import httpx
 from src.modules.user.models import User
-from src.modules.user.service import createUser, login, loginForm, use_refresh_token, listActiveHyperAttackByName, listActiveUser, listAllUsers, listUSer, activateUser, desativateUser, upHighestLevel
+from src.modules.user.service import createUser, login, loginForm, use_refresh_token, listActiveHyperAttackByName, listActiveUser, listAllUsers, listUSer, activateUser, desativateUser, upHighestLevel, upCurrentLevel, giveCoins, removeCoins, downCurrentLevel
 from src.modules.user.schemas import UserSchema, LoginSchema
 from sqlalchemy.orm import Session
 from src.common.dependencies import get_session, verificate_token
@@ -77,9 +77,39 @@ async def ActivateUser(id_user: int,
     result = await activateUser(id_user=id_user, session=session, user=user)
     return result
 
-@user_routes.patch("/up-level/{id}")
+@user_routes.patch("/up-highest-level/{id}")
 async def UpHighestLevel(id_user: int,
                       session: Session = Depends(get_session),
                       user = Depends(verificate_token) ):
     result = await upHighestLevel(id_user=id_user, session=session, user=user)
+    return result
+
+@user_routes.patch("/up-current-level/{id}")
+async def UpCurrentLevel(id_user: int,
+                      session: Session = Depends(get_session),
+                      user = Depends(verificate_token) ):
+    result = await upCurrentLevel(id_user=id_user, session=session, user=user)
+    return result
+
+@user_routes.patch("/down-current-level/{id}")
+async def DownCurrentLevel(id_user: int,
+                      session: Session = Depends(get_session),
+                      user = Depends(verificate_token) ):
+    result = await downCurrentLevel(id_user=id_user, session=session, user=user)
+    return result
+
+@user_routes.patch("/give-coins/{id}/{coins}")
+async def GiveCoins(id_user: int,
+                    coins: int,
+                      session: Session = Depends(get_session),
+                      user = Depends(verificate_token) ):
+    result = await giveCoins(id_user=id_user, session=session, user=user, coins=coins)
+    return result
+
+@user_routes.patch("/remove-coins/{id}/{coins}")
+async def RemoveCoins(id_user: int,
+                      coins: int,
+                      session: Session = Depends(get_session),
+                      user = Depends(verificate_token) ):
+    result = await removeCoins(id_user=id_user, session=session, user=user, coins=coins)
     return result

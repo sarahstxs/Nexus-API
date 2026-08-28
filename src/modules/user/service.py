@@ -126,8 +126,52 @@ async def upHighestLevel(session, id_user, user):
     if level:
         user.highest_level = next_level
         session.commit()
+        return {"mensagem": "O usuário subiu de nível máximo"}
+    return {"mensagem": "O usuário ja esta no nível máximo mais alto!"}
+
+async def upCurrentLevel(session, id_user, user):
+    if not user.admin:
+        raise HTTPException(status_code=403, detail="Você não ter permissão para subir usuário de nível!")
+    
+    user = session.query(User).filter(User.id == id_user).first()
+    next_level = user.current_level + 1
+    level = session.query(ActiveTowerRun).filter(ActiveTowerRun.current_floor == next_level).first()
+    if level:
+        user.current_level = next_level
+        session.commit()
         return {"mensagem": "O usuário subiu de nível"}
     return {"mensagem": "O usuário ja esta no nível mais alto!"}
+
+async def downCurrentLevel(session, id_user, user):
+    if not user.admin:
+        raise HTTPException(status_code=403, detail="Você não ter permissão para descer esse usuário de nível!")
+    
+    user = session.query(User).filter(User.id == id_user).first()
+    user.current_level = 1
+    session.commit()
+    return {"mensagem": "O usuário desceu de nível"}
+
+async def giveCoins(session, id_user, user, coins):
+    if not user.admin:
+        raise HTTPException(status_code=403, detail="Você não ter permissão para dar coins a esse usuário!")
+    
+    user = session.query(User).filter(User.id == id_user).first()
+    user.coins += coins
+    session.commit()
+    return {"mensagem": f"O usuário recebeu {coins} coins"}
+
+async def removeCoins(session, id_user, user, coins):
+    if not user.admin:
+        raise HTTPException(status_code=403, detail="Você não ter permissão para tirar coins a esse usuário!")
+    
+    user = session.query(User).filter(User.id == id_user).first()
+    
+    if user.coins < coins:
+        return {"mensagem": "O usuário não tem dinheiro o sufuciente para isso"}
+    user.coins -= coins
+    session.commit()
+    return {"mensagem": f"O usuário perdeu {coins} coins"}
+   
     
 async def desativateUser(session, id_user, user):
     if not user.admin:

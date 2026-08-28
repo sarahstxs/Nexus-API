@@ -21,11 +21,13 @@ async def createPack(session, pack_schema, user):
     name = pack_schema.name,
     deck = pack_schema.deck
     active = pack_schema.active
+    price = pack_schema.price
 
     new_pack = {
         "name": name,
         "deck": deck,
-        "active": active
+        "active": active,
+        "price": price
     }
     
     final_pack = Pack(**new_pack)
