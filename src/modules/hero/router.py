@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 import httpx
-from src.modules.hero.service import listAllHeroes, createHero, addHeroPack, desativateHeroPack
+from src.modules.hero.service import listAllHeroes, createHero, addHeroPack, desativateHeroPack, activateHero, activateHeroPack, desativateHero, listHero
 from src.modules.user.service import verificate_token
 from src.modules.hero.schemas import HeroSchemaUser
 from src.modules.hero_pack.schemas import HeroPackSchema
@@ -18,6 +18,11 @@ async def listHeroes():
     result = await listAllHeroes(10)
     return result
 
+@hero_routes.get("/list/{id}")
+async def ListHEro(id_hero: int, session: Session = Depends(get_session)):
+    result = await listHero(id_hero=id_hero, session=session)
+    return result
+
 @hero_routes.post("/create-hero")
 async def CreateHero(
     hero: HeroSchemaUser, 
@@ -28,6 +33,21 @@ async def CreateHero(
     result = await createHero(hero_schema_user=hero, session=session, user=user)
     return result
 
+@hero_routes.patch("/desativate/{id}")
+async def DesativateHero(id_hero: int, 
+                            user = Depends(verificate_token),
+                            session: Session = Depends(get_session)
+                            ):
+    result = await desativateHero(id_hero=id_hero, user=user, session=session)
+    return result
+
+@hero_routes.patch("/activate/{id}")
+async def ActivateHero(id_hero: int, 
+                            user = Depends(verificate_token),
+                            session: Session = Depends(get_session)
+                            ):
+    result = await activateHero(id_hero=id_hero, user=user, session=session)
+    return result
 
 ###################* Hero_pack routes *######################
 
@@ -41,10 +61,18 @@ async def AddHeroPack(
     result = await addHeroPack(hero_pack_schema=hero_pack, session=session, user=user, id_hero=id_hero)
     return result
 
-@hero_routes.patch("/{id}")
+@hero_routes.patch("/desativate-hero-pack/{id}")
 async def DesativateHeroPack(id_hero_pack: int, 
                             user = Depends(verificate_token),
                             session: Session = Depends(get_session)
                             ):
     result = await desativateHeroPack(id_hero_pack=id_hero_pack, user=user, session=session)
+    return result
+
+@hero_routes.patch("/activate-hero-pack/{id}")
+async def ActivateHeroPack(id_hero_pack: int, 
+                            user = Depends(verificate_token),
+                            session: Session = Depends(get_session)
+                            ):
+    result = await activateHeroPack(id_hero_pack=id_hero_pack, user=user, session=session)
     return result

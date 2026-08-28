@@ -73,6 +73,10 @@ async def listAllHeroes(meta_personagem: int):
         "personagens": heroes_list
         }
 
+async def listHero(session, id_hero):
+    hero = session.query(Hero).filter(Hero.id == id_hero).first()
+    return hero
+
 async def createHero(hero_schema_user, session, user):
     if not user.admin:
         raise HTTPException(status_code=403,detail="Você não tem permissão para criar esse herói")
@@ -168,3 +172,45 @@ async def desativateHeroPack(session, id_hero_pack, user):
     session.commit()
     return {"mensagem": "Herói em pacote desativado com sucesso!",
             "Pacote": hero_pack}
+
+async def activateHeroPack(session, id_hero_pack, user):
+    if not user.admin:
+        raise HTTPException(status_code=403,detail="Você não tem permissão para ativar esse herói")
+    
+    hero_pack = session.query(HeroPack).filter(HeroPack.id == id_hero_pack).first()
+
+    if not hero_pack:
+        raise HTTPException(status_code=404, detail="Herói em pacote não encontrado!")
+    
+    hero_pack.active = True
+    session.commit()
+    return {"mensagem": "Herói em pacote ativado com sucesso!",
+            "Pacote": hero_pack}
+
+async def desativateHero(session, id_hero, user):
+    if not user.admin:
+        raise HTTPException(status_code=403,detail="Você não tem permissão para desativar esse herói")
+    
+    hero = session.query(Hero).filter(Hero.id == id_hero).first()
+
+    if not hero:
+        raise HTTPException(status_code=404, detail="Herói não encontrado!")
+    
+    hero.active = False
+    session.commit()
+    return {"mensagem": "Herói desativado com sucesso!",
+            "Herói": hero}
+
+async def activateHero(session, id_hero, user):
+    if not user.admin:
+        raise HTTPException(status_code=403,detail="Você não tem permissão para ativar esse herói")
+    
+    hero = session.query(Hero).filter(Hero.id == id_hero).first()
+
+    if not hero:
+        raise HTTPException(status_code=404, detail="Herói não encontrado!")
+    
+    hero.active = True
+    session.commit()
+    return {"mensagem": "Herói ativado com sucesso!",
+            "Herói": hero}
