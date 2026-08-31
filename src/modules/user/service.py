@@ -4,13 +4,21 @@ from fastapi import APIRouter, Depends, HTTPException
 from src.common.dependencies import get_session, verificate_token
 from sqlalchemy.orm import Session
 from src.modules.user.models import User
+from src.modules.pack.models import Pack
+from src.modules.hero.models import Hero
+from src.modules.user_hero.models import UserHero
+from src.modules.hero_pack.models import HeroPack
+from src.modules.user_hero.service import addHero, AddFragmentsHero
 from src.modules.active_tower_run.models import ActiveTowerRun
 from src.modules.user.schemas import UserSchema, LoginSchema
+from src.modules.user_hero.schemas import UserHeroSchema
 from dotenv import load_dotenv
 from datetime import datetime, timedelta, timezone
 from src.core.config import bcrypt_context, ACESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY
 from jose import jwt, JWTError
 from fastapi.security import OAuth2PasswordRequestForm
+from collections import defaultdict
+import random
 
 load_dotenv()
 
@@ -170,8 +178,7 @@ async def removeCoins(session, id_user, user, coins):
         return {"mensagem": "O usuário não tem dinheiro o sufuciente para isso"}
     user.coins -= coins
     session.commit()
-    return {"mensagem": f"O usuário perdeu {coins} coins"}
-   
+    return {"mensagem": f"O usuário perdeu {coins} coins"} 
     
 async def desativateUser(session, id_user, user):
     if not user.admin:
@@ -200,3 +207,51 @@ async def activateUser(session, id_user, user):
     session.commit()
     return {"mensagem": "Usuário ativado com sucesso!",
             "Usuário": user}
+
+def sortedHeros(session, user_hero_schema, id_pack, id_user):
+    heroes = session.query(HeroPack).filter(HeroPack.pack == id_pack).all()
+    
+    heroes_common = []
+    heroes_rare = []
+    heroes_legendary = []
+
+    for hero in heroes:
+        hero_complete = session.query(Hero).filter(Hero.id == hero.hero).first()
+
+        match hero_complete.rarity:
+            case 1:
+                heroes_common.append(hero_complete)
+            case 2:
+                heroes_rare.append(hero_complete)
+            case 3:
+                heroes_legendary.append(hero_complete)
+
+    heroes_selected = []
+    for i in range(4):
+        choice = int((random.random())*100)
+        if choice >= 50:
+            hero = random.choice(heroes_common)
+        if 11 <= choice <= 49:
+            hero = random.choice(heroes_rare)
+        if choice <= 10:
+            hero = random.choice(heroes_legendary)
+        
+        heroes_selected.append(hero.name)
+        user_hero = session.query(UserHero).filter(UserHero.hero == hero.id, UserHero.user == id_user).first()
+        if user_hero is None:
+            addHero(session=session, id_hero=hero.id, id_user=id_user, user_hero_schema=user_hero_schema)
+        else:
+            AddFragmentsHero(session=session, id_hero=user_hero.hero, id_user=user_hero.user)
+    return heroes_selected
+
+
+async def buyPack(session, id_user, id_pack, user_hero_schema=UserHeroSchema):
+    user = session.query(User).filter(User.id == id_user).first()
+    pack = session.query(Pack).filter(Pack.id == id_pack).first()
+
+    if user.coins >= pack.price:
+        user.coins -= pack.price
+        session.commit()
+        return sortedHeros(session, user_hero_schema=user_hero_schema, id_pack=id_pack, id_user=id_user)
+        
+    return{"Mensagem": "Você não tem dinheiro!"}

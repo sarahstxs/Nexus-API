@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 import httpx
 from src.modules.user.models import User
-from src.modules.user.service import createUser, login, loginForm, use_refresh_token, listActiveHyperAttackByName, listActiveUser, listAllUsers, listUSer, activateUser, desativateUser, upHighestLevel, upCurrentLevel, giveCoins, removeCoins, downCurrentLevel
+from src.modules.user.service import createUser, login, loginForm, use_refresh_token, listActiveHyperAttackByName, listActiveUser, listAllUsers, listUSer, activateUser, desativateUser, upHighestLevel, upCurrentLevel, giveCoins, removeCoins, downCurrentLevel, buyPack
 from src.modules.user.schemas import UserSchema, LoginSchema
 from sqlalchemy.orm import Session
 from src.common.dependencies import get_session, verificate_token
@@ -112,4 +112,11 @@ async def RemoveCoins(id_user: int,
                       session: Session = Depends(get_session),
                       user = Depends(verificate_token) ):
     result = await removeCoins(id_user=id_user, session=session, user=user, coins=coins)
+    return result
+
+@user_routes.get("/comprar-pack/{id_user}/{id_pack}")
+async def BuyPack(id_pack: int,
+                  id_user: int,
+                  session: Session = Depends(get_session)):
+    result =  await buyPack(session=session, id_pack=id_pack, id_user=id_user)
     return result
