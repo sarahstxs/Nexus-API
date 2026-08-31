@@ -19,7 +19,6 @@ from src.modules.hero_pack import models
 from src.modules.hyper_attack import models
 from src.modules.pack import models
 from src.modules.place import models
-from src.modules.run_hero_state import models
 from src.modules.user import models
 from src.modules.user_hero import models
 

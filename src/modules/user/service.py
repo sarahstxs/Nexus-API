@@ -38,6 +38,42 @@ def autenticate_user(email: str, password:str, session):
         return False
     return user 
 
+def sortedHeros(session, user_hero_schema, id_pack, id_user):
+    heroes = session.query(HeroPack).filter(HeroPack.pack == id_pack).all()
+    
+    heroes_common = []
+    heroes_rare = []
+    heroes_legendary = []
+
+    for hero in heroes:
+        hero_complete = session.query(Hero).filter(Hero.id == hero.hero).first()
+
+        match hero_complete.rarity:
+            case 1:
+                heroes_common.append(hero_complete)
+            case 2:
+                heroes_rare.append(hero_complete)
+            case 3:
+                heroes_legendary.append(hero_complete)
+
+    heroes_selected = []
+    for i in range(4):
+        choice = int((random.random())*100)
+        if choice >= 50:
+            hero = random.choice(heroes_common)
+        if 11 <= choice <= 49:
+            hero = random.choice(heroes_rare)
+        if choice <= 10:
+            hero = random.choice(heroes_legendary)
+        
+        heroes_selected.append(hero.name)
+        user_hero = session.query(UserHero).filter(UserHero.hero == hero.id, UserHero.user == id_user).first()
+        if user_hero is None:
+            addHero(session=session, id_hero=hero.id, id_user=id_user, user_hero_schema=user_hero_schema)
+        else:
+            AddFragmentsHero(session=session, id_hero=user_hero.hero, id_user=user_hero.user)
+    return heroes_selected
+
 async def createUser(user_schema: UserSchema, session = Depends(get_session)):
 
     usuario = session.query(User).filter(User.email == user_schema.email).first()
@@ -207,43 +243,6 @@ async def activateUser(session, id_user, user):
     session.commit()
     return {"mensagem": "Usuário ativado com sucesso!",
             "Usuário": user}
-
-def sortedHeros(session, user_hero_schema, id_pack, id_user):
-    heroes = session.query(HeroPack).filter(HeroPack.pack == id_pack).all()
-    
-    heroes_common = []
-    heroes_rare = []
-    heroes_legendary = []
-
-    for hero in heroes:
-        hero_complete = session.query(Hero).filter(Hero.id == hero.hero).first()
-
-        match hero_complete.rarity:
-            case 1:
-                heroes_common.append(hero_complete)
-            case 2:
-                heroes_rare.append(hero_complete)
-            case 3:
-                heroes_legendary.append(hero_complete)
-
-    heroes_selected = []
-    for i in range(4):
-        choice = int((random.random())*100)
-        if choice >= 50:
-            hero = random.choice(heroes_common)
-        if 11 <= choice <= 49:
-            hero = random.choice(heroes_rare)
-        if choice <= 10:
-            hero = random.choice(heroes_legendary)
-        
-        heroes_selected.append(hero.name)
-        user_hero = session.query(UserHero).filter(UserHero.hero == hero.id, UserHero.user == id_user).first()
-        if user_hero is None:
-            addHero(session=session, id_hero=hero.id, id_user=id_user, user_hero_schema=user_hero_schema)
-        else:
-            AddFragmentsHero(session=session, id_hero=user_hero.hero, id_user=user_hero.user)
-    return heroes_selected
-
 
 async def buyPack(session, id_user, id_pack, user_hero_schema=UserHeroSchema):
     user = session.query(User).filter(User.id == id_user).first()
