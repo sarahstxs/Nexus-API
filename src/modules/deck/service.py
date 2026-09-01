@@ -70,3 +70,58 @@ async def addHeroDeck(session, id_deck, id_user, id_hero):
     session.commit()
     session.refresh(final_deck_slot)
     return user_hero
+
+async def listAllDecks(session, user):
+    if not user.admin:
+        raise HTTPException(status_code=403,detail="Você não tem permissão para desativar esse deck!")
+
+    list = session.query(Deck).all()
+    return {"Classes": list}
+
+async def listDeck(session, id_deck, user):
+    if not user.admin:
+        raise HTTPException(status_code=403,detail="Você não tem permissão para desativar esse deck!")
+    deck = session.query(Deck).filter(Deck.id == id_deck).first()
+    return deck
+
+async def listDecksByUser(session, user):
+    deck = session.query(Deck).filter(Deck.user == user.id).all()
+    return deck
+
+async def listDeckByUser(session, user, id_deck):
+    deck = session.query(Deck).filter(Deck.user == user.id, Deck.id == id_deck).first()
+    return deck
+
+async def desativateDeck(session, id_deck, id_user):    
+    deck = session.query(Deck).filter(Deck.id == id_deck, Deck.user == id_user).first()
+
+    if not deck:
+        raise HTTPException(status_code=404, detail="deck não encontrado!")
+    
+    deck.active = False
+    session.commit()
+    return {"mensagem": "Deck desativado com sucesso!",
+            "Deck": deck}
+
+async def activateDeck(session, id_deck, id_user):    
+    deck = session.query(Deck).filter(Deck.id == id_deck, Deck.user == id_user).first()
+
+    if not deck:
+        raise HTTPException(status_code=404, detail="Deck não encontrado!")
+    
+    deck.active = True
+    session.commit()
+    return {"mensagem": "Deck ativado com sucesso!",
+            "Deck": deck}
+
+async def listActiveDecks(session, user):
+    if not user.admin:
+        raise HTTPException(status_code=403,detail="Você não tem permissão para desativar esse deck!")
+     
+    deck = session.query(Deck).filter(Deck.active == True).all()
+    return deck
+
+async def listActiveDecksByUser(session, user):
+    deck = session.query(Deck).filter(Deck.active == True, Deck.user == user.id).all()
+    return deck
+

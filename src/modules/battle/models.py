@@ -10,9 +10,11 @@ class Battle(Base):
     floor_reached = Column("floor_reached", Integer, ForeignKey("active_tower_runs.id"), nullable=False, unique=False)
     deck = Column("deck", Integer, ForeignKey("decks.id"), nullable=False, unique=False)
     result = Column("result", Integer, nullable=False, unique=False)
+    user = Column("user", Integer, ForeignKey("users.id"), nullable=False, unique=False)
 
-    def __init__(self, floor_reached, deck, result, date: datetime = None):
+    def __init__(self, floor_reached, deck, result, user, date: datetime = None):
         self.date = date or datetime.now()
         self.floor_reached = floor_reached
         self.deck = deck
         self.result = result
+        self.user = user
