@@ -1,20 +1,20 @@
-import os
-import httpx
-from fastapi import APIRouter, Depends, HTTPException
-from src.modules.deck.schemas import DeckSchema
-from src.modules.deck_slot.schemas import DeckSlotSchema
-from src.common.dependencies import get_session
-from sqlalchemy.orm import Session
+from fastapi import HTTPException
 from src.modules.deck.models import Deck
 from src.modules.deck_slot.models import DeckSlot
 from src.modules.user_hero.models import UserHero
-from src.modules.hero_pack.models import HeroPack
 from datetime import datetime
 from dotenv import load_dotenv
 
 load_dotenv()
 
-async def createDeck(session, id_user, id_hero1, id_hero2, id_hero3, id_hero4):
+async def createDeck(
+        session,
+        id_user,
+        id_hero1,
+        id_hero2,
+        id_hero3,
+        id_hero4):
+    
     if (len({id_hero1, id_hero2, id_hero3, id_hero4}) < 4):
         return {"mensagem": "Você não pode ter heróis repetidos no seu deck!"}
     
@@ -36,26 +36,48 @@ async def createDeck(session, id_user, id_hero1, id_hero2, id_hero3, id_hero4):
     
     user_hero_selected = []
 
-    result = await addHeroDeck(session=session, id_deck=id_deck, id_hero=id_hero1, id_user=id_user)
+    result = await addHeroDeck(
+        session=session,
+        id_deck=id_deck,
+        id_hero=id_hero1,
+        id_user=id_user)
     user_hero_selected.append(result.user_hero)
 
-    result = await addHeroDeck(session=session, id_deck=id_deck, id_hero=id_hero2, id_user=id_user)
+    result = await addHeroDeck(
+        session=session,
+        id_deck=id_deck,
+        id_hero=id_hero2,
+        id_user=id_user)
     user_hero_selected.append(result.user_hero)
 
-    result = await addHeroDeck(session=session, id_deck=id_deck, id_hero=id_hero3, id_user=id_user)
+    result = await addHeroDeck(
+        session=session,
+        id_deck=id_deck,
+        id_hero=id_hero3,
+        id_user=id_user)
     user_hero_selected.append(result.user_hero)
 
-    result = await addHeroDeck(session=session, id_deck=id_deck, id_hero=id_hero4, id_user=id_user)
+    result = await addHeroDeck(
+        session=session,
+        id_deck=id_deck,
+        id_hero=id_hero4,
+        id_user=id_user)
     user_hero_selected.append(result.user_hero)
 
 
     return user_hero_selected
 
-async def addHeroDeck(session, id_deck, id_user, id_hero):
+async def addHeroDeck(
+        session,
+        id_deck,
+        id_user,
+        id_hero):
     user_hero = session.query(UserHero).filter(UserHero.hero == id_hero, UserHero.user == id_user).first()
 
     if not user_hero:
-        raise HTTPException(status_code=404, detail="O usuário não tem esse herói em seu time!")
+        raise HTTPException(
+            status_code=404,
+            detail="O usuário não tem esse herói em seu time!")
     
     user_hero_slot = user_hero.id
     deck = id_deck
@@ -71,57 +93,90 @@ async def addHeroDeck(session, id_deck, id_user, id_hero):
     session.refresh(final_deck_slot)
     return user_hero
 
-async def listAllDecks(session, user):
+async def listAllDecks(
+        session,
+        user):
+    
     if not user.admin:
-        raise HTTPException(status_code=403,detail="Você não tem permissão para desativar esse deck!")
+        raise HTTPException(
+            status_code=403,
+            detail="Você não tem permissão para desativar esse deck!")
 
     list = session.query(Deck).all()
     return {"Classes": list}
 
-async def listDeck(session, id_deck, user):
+async def listDeck(
+        session,
+        id_deck,
+        user):
+    
     if not user.admin:
-        raise HTTPException(status_code=403,detail="Você não tem permissão para desativar esse deck!")
+        raise HTTPException(
+            status_code=403,
+            detail="Você não tem permissão para desativar esse deck!")
+    
     deck = session.query(Deck).filter(Deck.id == id_deck).first()
     return deck
 
-async def listDecksByUser(session, user):
+async def listDecksByUser(
+        session,
+        user):
     deck = session.query(Deck).filter(Deck.user == user.id).all()
     return deck
 
-async def listDeckByUser(session, user, id_deck):
+async def listDeckByUser(
+        session,
+        user,
+        id_deck):
     deck = session.query(Deck).filter(Deck.user == user.id, Deck.id == id_deck).first()
     return deck
 
-async def desativateDeck(session, id_deck, id_user):    
+async def desativateDeck(
+        session,
+        id_deck,
+        id_user):    
     deck = session.query(Deck).filter(Deck.id == id_deck, Deck.user == id_user).first()
 
     if not deck:
-        raise HTTPException(status_code=404, detail="deck não encontrado!")
+        raise HTTPException(
+            status_code=404,
+            detail="deck não encontrado!")
     
     deck.active = False
     session.commit()
     return {"mensagem": "Deck desativado com sucesso!",
             "Deck": deck}
 
-async def activateDeck(session, id_deck, id_user):    
+async def activateDeck(
+        session,
+        id_deck,
+        id_user):    
     deck = session.query(Deck).filter(Deck.id == id_deck, Deck.user == id_user).first()
 
     if not deck:
-        raise HTTPException(status_code=404, detail="Deck não encontrado!")
+        raise HTTPException(
+            status_code=404,
+            detail="Deck não encontrado!")
     
     deck.active = True
     session.commit()
     return {"mensagem": "Deck ativado com sucesso!",
             "Deck": deck}
 
-async def listActiveDecks(session, user):
+async def listActiveDecks(
+        session,
+        user):
     if not user.admin:
-        raise HTTPException(status_code=403,detail="Você não tem permissão para desativar esse deck!")
+        raise HTTPException(
+            status_code=403,
+            detail="Você não tem permissão para desativar esse deck!")
      
     deck = session.query(Deck).filter(Deck.active == True).all()
     return deck
 
-async def listActiveDecksByUser(session, user):
+async def listActiveDecksByUser(
+        session,
+        user):
     deck = session.query(Deck).filter(Deck.active == True, Deck.user == user.id).all()
     return deck
 
