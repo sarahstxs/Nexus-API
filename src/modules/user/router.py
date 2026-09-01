@@ -1,5 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
-import httpx
+from fastapi import APIRouter, Depends
 from src.modules.user.models import User
 from src.modules.user.service import createUser, login, loginForm, use_refresh_token, listActiveHyperAttackByName, listActiveUser, listAllUsers, listUSer, activateUser, desativateUser, upHighestLevel, upCurrentLevel, giveCoins, removeCoins, downCurrentLevel, buyPack
 from src.modules.user.schemas import UserSchema, LoginSchema
@@ -17,106 +16,185 @@ async def user():
     return {"mensagem": "Você acessou a rota de usuário"}
 
 @user_routes.post("/", response_model=None)
-async def CreateUser(user:UserSchema, session: Session = Depends(get_session)):
-    result = await createUser(user_schema=user, session=session)
+async def CreateUser(
+    user:UserSchema, 
+    session: Session = Depends(get_session)
+    ):
+    result = await createUser(
+        user_schema=user, 
+        session=session)
     return result
 
 @user_routes.post("/login", response_model=None)
-async def Login(login_schema:LoginSchema, session: Session = Depends(get_session)):
-    result = await login(login_schema=login_schema, session=session)
+async def Login(
+    login_schema:LoginSchema, 
+    session: Session = Depends(get_session)
+    ):
+    result = await login(
+        login_schema=login_schema, 
+        session=session)
     return result
 
 @user_routes.post("/login-form", response_model=None)
-async def LoginForm(data_form: OAuth2PasswordRequestForm = Depends(), session: Session = Depends(get_session)):
+async def LoginForm(
+    data_form: OAuth2PasswordRequestForm = Depends(), 
+    session: Session = Depends(get_session)):
     
     user_email = data_form.username 
     user_password = data_form.password
     
     dados_login = LoginSchema(email=user_email, password=user_password)
     
-    result = await login(login_schema=dados_login, session=session)
+    result = await login(
+        login_schema=dados_login, 
+        session=session)
     
     return result
 
 @user_routes.get("/refresh")
-async def UseRefreshToken(user:User = Depends(verificate_token)):
-    result = await use_refresh_token(user=user)
+async def UseRefreshToken(
+    user:User = Depends(verificate_token)
+    ):
+    result = await use_refresh_token(
+        user=user)
     return result
 
 @user_routes.get("/list-active")
-async def ListActiveUser(session: Session = Depends(get_session)):
-    result = await listActiveUser(session=session)
+async def ListActiveUser(
+    session: Session = Depends(get_session)
+    ):
+    result = await listActiveUser(
+        session=session)
     return result
 
 @user_routes.get("/list-active-name/{name_pack}")
-async def ListActiveClassByName(name_user: str, session: Session = Depends(get_session)):
-    result = await listActiveHyperAttackByName(session=session, name_user=name_user)
+async def ListActiveClassByName(
+    name_user: str, 
+    session: Session = Depends(get_session)
+    ):
+    result = await listActiveHyperAttackByName(
+        session=session, 
+        name_user=name_user)
     return result
 
 @user_routes.get("/list")
-async def ListAllUsers(session: Session = Depends(get_session),user = Depends(verificate_token)):
-    result = await listAllUsers(session, user=user)
+async def ListAllUsers(
+    session: Session = Depends(get_session),
+    user = Depends(verificate_token)
+    ):
+    result = await listAllUsers(
+        session, 
+        user=user)
     return result
 
 @user_routes.get("/list/{id}")
-async def ListUser(id_user: int, session: Session = Depends(get_session), user = Depends(verificate_token)):
-    result = await listUSer(id_user=id_user, session=session, user=user)
+async def ListUser(
+    id_user: int, 
+    session: Session = Depends(get_session), 
+    user = Depends(verificate_token)
+    ):
+    result = await listUSer(
+        id_user=id_user, 
+        session=session, 
+        user=user)
     return result
 
 @user_routes.patch("/desativate/{id}")
-async def DesativateUser(id_user: int,
-                      session: Session = Depends(get_session),
-                      user = Depends(verificate_token) ):
-    result = await desativateUser(id_user=id_user, session=session, user=user)
+async def DesativateUser(
+    id_user: int,
+    session: Session = Depends(get_session),
+    user = Depends(verificate_token)
+    ):
+    result = await desativateUser(
+        id_user=id_user, 
+        session=session, 
+        user=user)
     return result
 
 @user_routes.patch("/activate/{id}")
-async def ActivateUser(id_user: int,
-                      session: Session = Depends(get_session),
-                      user = Depends(verificate_token) ):
-    result = await activateUser(id_user=id_user, session=session, user=user)
+async def ActivateUser(
+    id_user: int,
+    session: Session = Depends(get_session),
+    user = Depends(verificate_token)
+    ):
+    result = await activateUser(
+        id_user=id_user,
+        session=session, 
+        user=user)
     return result
 
 @user_routes.patch("/up-highest-level/{id}")
-async def UpHighestLevel(id_user: int,
-                      session: Session = Depends(get_session),
-                      user = Depends(verificate_token) ):
-    result = await upHighestLevel(id_user=id_user, session=session, user=user)
+async def UpHighestLevel(
+    id_user: int,
+    session: Session = Depends(get_session),
+    user = Depends(verificate_token)
+    ):
+    result = await upHighestLevel(
+        id_user=id_user, 
+        session=session, 
+        user=user)
     return result
 
 @user_routes.patch("/up-current-level/{id}")
-async def UpCurrentLevel(id_user: int,
-                      session: Session = Depends(get_session),
-                      user = Depends(verificate_token) ):
-    result = await upCurrentLevel(id_user=id_user, session=session, user=user)
+async def UpCurrentLevel(
+    id_user: int,
+    session: Session = Depends(get_session),
+    user = Depends(verificate_token)
+    ):
+    result = await upCurrentLevel(
+        id_user=id_user, 
+        session=session, 
+        user=user)
     return result
 
 @user_routes.patch("/down-current-level/{id}")
-async def DownCurrentLevel(id_user: int,
-                      session: Session = Depends(get_session),
-                      user = Depends(verificate_token) ):
-    result = await downCurrentLevel(id_user=id_user, session=session, user=user)
+async def DownCurrentLevel(
+    id_user: int,
+    session: Session = Depends(get_session),
+    user = Depends(verificate_token)
+    ):
+    result = await downCurrentLevel(
+        id_user=id_user, 
+        session=session, 
+        user=user)
     return result
 
 @user_routes.patch("/give-coins/{id}/{coins}")
-async def GiveCoins(id_user: int,
-                    coins: int,
-                      session: Session = Depends(get_session),
-                      user = Depends(verificate_token) ):
-    result = await giveCoins(id_user=id_user, session=session, user=user, coins=coins)
+async def GiveCoins(
+    id_user: int,
+    coins: int,
+    session: Session = Depends(get_session),
+    user = Depends(verificate_token)
+    ):
+    result = await giveCoins(
+        id_user=id_user, 
+        session=session, 
+        user=user, 
+        coins=coins)
     return result
 
 @user_routes.patch("/remove-coins/{id}/{coins}")
-async def RemoveCoins(id_user: int,
-                      coins: int,
-                      session: Session = Depends(get_session),
-                      user = Depends(verificate_token) ):
-    result = await removeCoins(id_user=id_user, session=session, user=user, coins=coins)
+async def RemoveCoins(
+    id_user: int,
+    coins: int,
+    session: Session = Depends(get_session),
+    user = Depends(verificate_token)
+    ):
+    result = await removeCoins(
+        id_user=id_user, 
+        session=session, 
+        user=user, 
+        coins=coins)
     return result
 
 @user_routes.get("/comprar-pack/{id_user}/{id_pack}")
-async def BuyPack(id_pack: int,
-                  id_user: int,
-                  session: Session = Depends(get_session)):
-    result =  await buyPack(session=session, id_pack=id_pack, id_user=id_user)
+async def BuyPack(
+    id_pack: int,
+    id_user: int,
+    session: Session = Depends(get_session)
+    ):
+    result =  await buyPack(
+        session=session,
+        id_pack=id_pack,
+        id_user=id_user)
     return result

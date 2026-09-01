@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, Boolean, Float, ForeignKey, PrimaryKeyConstraint, DateTime, Nullable
+from sqlalchemy import Column, String, Integer, Boolean, ForeignKey, DateTime
 from src.core.database import Base
 
 class User(Base):
