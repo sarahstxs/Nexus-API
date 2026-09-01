@@ -1,22 +1,11 @@
-import os
-import httpx
-from fastapi import APIRouter, Depends, HTTPException
-from src.common.dependencies import get_session, verificate_token
-from sqlalchemy.orm import Session
+from fastapi import HTTPException
 from src.modules.user_hero.models import UserHero
 from src.modules.hero.models import Hero
-from src.modules.hero_pack.models import HeroPack
-from src.modules.active_tower_run.models import ActiveTowerRun
-# from src.modules.run_hero_state.schemas import 
-from dotenv import load_dotenv
-from datetime import datetime, timedelta, timezone
-from src.core.config import bcrypt_context, ACESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY
-from jose import jwt, JWTError
-from fastapi.security import OAuth2PasswordRequestForm
-from collections import defaultdict
-import random
 
-def addHero(session, user_hero_schema, id_hero, id_user):    
+def addHero(
+        session, 
+        id_hero, 
+        id_user):    
     hero = session.query(Hero).filter(Hero.id == id_hero).first()
 
     new_user_hero = {
@@ -37,14 +26,18 @@ def addHero(session, user_hero_schema, id_hero, id_user):
     session.refresh(final_hero_uder_pack)
     return {"mensagem": f"Herói de usuário cadastrado com sucesso!"}
 
-def AddFragmentsHero(session, id_hero, id_user):
+def AddFragmentsHero(session, 
+                     id_hero, 
+                     id_user):
     user_hero = session.query(UserHero).filter(UserHero.hero == id_hero, UserHero.user == id_user).first()
     hero = session.query(Hero).filter(Hero.id == id_hero).first()
 
     if not user_hero:
         raise HTTPException(status_code=404, detail="Usuário de herói não encontrado!")
+    
     fragments = user_hero.fragments + 1
     level = user_hero.level
+
     match fragments:
         case x if x >= 5 :
             if level < 2:
@@ -76,14 +69,21 @@ def AddFragmentsHero(session, id_hero, id_user):
                 user_hero.level = 7
                 user_hero.max_hp = user_hero.max_hp * 0.2
                 return {"mensagem": "Você subiu de nível para o nível 7!"}
+            
     user_hero.fragments = fragments
     session.commit()
 
-async def loseHealth(session, id_hero, id_user, damage):
+async def loseHealth(
+        session, 
+        id_hero, 
+        id_user, 
+        damage):
     user_hero = session.query(UserHero).filter(UserHero.hero == id_hero, UserHero.user == id_user).first()
 
     if not user_hero:
-        raise HTTPException(status_code=404, detail="Herói não encontrado na conte da usuário!")
+        raise HTTPException(
+            status_code=404, 
+            detail="Herói não encontrado na conte da usuário!")
     
     user_hero.current_hp -= damage
     if user_hero.current_hp <= 0:
@@ -95,11 +95,17 @@ async def loseHealth(session, id_hero, id_user, damage):
     session.commit()
     return {"mensagem": f"O usuário perdeu {damage} pontos de vida!"}
 
-async def acquireHealth(session, id_hero, id_user, health):
+async def acquireHealth(
+        session, 
+        id_hero, 
+        id_user, 
+        health):
     user_hero = session.query(UserHero).filter(UserHero.hero == id_hero, UserHero.user == id_user).first()
 
     if not user_hero:
-        raise HTTPException(status_code=404, detail="Herói não encontrado na conte da usuário!")
+        raise HTTPException(
+            status_code=404, 
+            detail="Herói não encontrado na conte da usuário!")
     
     user_hero.current_hp += health
     if user_hero.current_hp >= user_hero.max_hp:
@@ -110,11 +116,16 @@ async def acquireHealth(session, id_hero, id_user, health):
     session.commit()
     return {"mensagem": f"O usuário ganhou {health} pontos de vida!"}
 
-async def reviveHero(session, id_hero, id_user):
+async def reviveHero(
+        session, 
+        id_hero, 
+        id_user):
     user_hero = session.query(UserHero).filter(UserHero.hero == id_hero, UserHero.user == id_user).first()
 
     if not user_hero:
-        raise HTTPException(status_code=404, detail="Herói não encontrado na conte da usuário!")
+        raise HTTPException(
+            status_code=404, 
+            detail="Herói não encontrado na conte da usuário!")
     
     user_hero.current_hp = user_hero.max_hp
     user_hero.alive = True
