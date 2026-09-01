@@ -1,17 +1,9 @@
-import os
-import httpx
-from fastapi import APIRouter, Depends, HTTPException
-from src.modules.deck.schemas import DeckSchema
-from src.modules.active_tower_run.schemas import ActiveTowerRunSchema
-from src.common.dependencies import get_session
-from sqlalchemy.orm import Session
+from fastapi import HTTPException
 from src.modules.active_tower_run.models import ActiveTowerRun
-from datetime import datetime
-from dotenv import load_dotenv
 
 async def listAllActiveTowerRun(session):
     list = session.query(ActiveTowerRun).all()
-    return {"Nível da torre": list}
+    return {"Níveis da torre": list}
 
 async def listActiveTowerRun(session, id_active_tower_run):
     active_tower_run = session.query(ActiveTowerRun).filter(ActiveTowerRun.id == id_active_tower_run).first()
@@ -57,7 +49,7 @@ async def desativateActiveTowerRun(session, id_active_tower_run, user):
 
 async def activateActiveTowerRun(session, id_active_tower_run, user):
     if not user.admin:
-        raise HTTPException(status_code=403,detail="Você não tem permissão para ativar essa classe!")
+        raise HTTPException(status_code=403,detail="Você não tem permissão para ativar esse nível da torre!")
     
     active_tower_run = session.query(ActiveTowerRun).filter(ActiveTowerRun.id == id_active_tower_run).first()
 
