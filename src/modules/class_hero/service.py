@@ -1,25 +1,28 @@
-import os
-import httpx
-from fastapi import APIRouter, Depends, HTTPException
-from src.modules.class_hero.schemas import ClassSchema
-from src.common.dependencies import get_session
-from sqlalchemy.orm import Session
+from fastapi import HTTPException
 from src.modules.class_hero.models import ClassHero
 from dotenv import load_dotenv
 
 load_dotenv()
 
-async def listAllClasses(session):
+async def listAllClasses(
+        session):
     list = session.query(ClassHero).all()
     return {"Classes": list}
 
-async def listClass(session, id_class):
+async def listClass(
+        session,
+        id_class):
     class_hero = session.query(ClassHero).filter(ClassHero.id == id_class).first()
     return class_hero
 
-async def createClass(session, class_schema, user):
+async def createClass(
+        session,
+        class_schema,
+        user):
     if not user.admin:
-        raise HTTPException(status_code=403,detail="Você não tem permissão para criar pacotes!")
+        raise HTTPException(
+            status_code=403,
+            detail="Você não tem permissão para criar classes!")
     
     name = class_schema.name,
     special_attack_effect = class_schema.special_attack_effect
@@ -41,23 +44,35 @@ async def createClass(session, class_schema, user):
     session.refresh(final_class)
     return {"mensagem": f"Classe cadastrada com sucesso "}
 
-async def desativateClass(session, id_class, user):
+async def desativateClass(
+        session,
+        id_class,
+        user):
     if not user.admin:
-        raise HTTPException(status_code=403,detail="Você não tem permissão para desativar essa classe")
+        raise HTTPException(
+            status_code=403,
+            detail="Você não tem permissão para desativar essa classe")
     
     class_hero = session.query(ClassHero).filter(ClassHero.id == id_class).first()
 
     if not class_hero:
-        raise HTTPException(status_code=404, detail="Classe não encontrada!")
+        raise HTTPException(
+            status_code=404,
+            detail="Classe não encontrada!")
     
     class_hero.active = False
     session.commit()
     return {"mensagem": "Classe desativada com sucesso!",
             "Classe": class_hero}
 
-async def activateClass(session, id_class, user):
+async def activateClass(
+        session,
+        id_class,
+        user):
     if not user.admin:
-        raise HTTPException(status_code=403,detail="Você não tem permissão para ativar essa classe!")
+        raise HTTPException(
+            status_code=403,
+            detail="Você não tem permissão para ativar essa classe!")
     
     class_hero = session.query(ClassHero).filter(ClassHero.id == id_class).first()
 
@@ -69,11 +84,14 @@ async def activateClass(session, id_class, user):
     return {"mensagem": "Classe ativada com sucesso!",
             "Classe": class_hero}
 
-async def listActiveClass(session):
+async def listActiveClass(
+        session):
     class_hero = session.query(ClassHero).filter(ClassHero.active == True).all()
     return class_hero
 
-async def listActiveClassByName(session, name_class):
+async def listActiveClassByName(
+        session,
+        name_class):
     class_hero = session.query(ClassHero).filter(
         ClassHero.name.icontains(name_class),
         ClassHero.active == True
