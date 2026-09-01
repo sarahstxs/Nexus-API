@@ -17,7 +17,8 @@ async def CreateBattle(
     id_deck: int,
     id_active_tower_run: int,
     battle_schema: BattleSchema,
-    session: Session = Depends(get_session)):
+    session: Session = Depends(get_session)
+    ):
     result = await createBattle(
         id_user=id_user, 
         id_deck=id_deck, 
@@ -29,7 +30,8 @@ async def CreateBattle(
 @battle_routes.get("/list")
 async def ListAllBattles(
     session: Session = Depends(get_session),
-    user = Depends(verificate_token) ):
+    user = Depends(verificate_token)
+    ):
     result = await listAllBattles(
         session=session,
         user=user)
@@ -39,7 +41,8 @@ async def ListAllBattles(
 async def ListBattle(
     id_battle: int,
     session: Session = Depends(get_session),
-    user = Depends(verificate_token)):
+    user = Depends(verificate_token)
+    ):
     result = await listBattle(
         id_battle=id_battle,
         session=session,
@@ -49,7 +52,8 @@ async def ListBattle(
 @battle_routes.get("/list-decks")
 async def ListBattlesByUser(
     session: Session = Depends(get_session),
-    user = Depends(verificate_token) ):
+    user = Depends(verificate_token)
+    ):
     result = await listBattlesByUser(
         session=session,
         user=user)
@@ -59,7 +63,8 @@ async def ListBattlesByUser(
 async def ListBattleByUser(
     id_battle: int,
     session: Session = Depends(get_session),
-    user = Depends(verificate_token)):
+    user = Depends(verificate_token)
+    ):
     result = await listBattleByUser(
         id_battle=id_battle,
         session=session,

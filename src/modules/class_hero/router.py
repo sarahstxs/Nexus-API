@@ -13,7 +13,8 @@ async def class_hero():
 
 @class_routes.get("/list")
 async def ListAllClasses(
-    session: Session = Depends(get_session)):
+    session: Session = Depends(get_session)
+    ):
     result = await listAllClasses(
         session)
     return result
@@ -21,7 +22,8 @@ async def ListAllClasses(
 @class_routes.get("/list/{id}")
 async def ListClass(
     id_class: int,
-    session: Session = Depends(get_session)):
+    session: Session = Depends(get_session)
+    ):
     result = await listClass(
         id_class=id_class,
         session=session)
@@ -43,7 +45,8 @@ async def CreateClass(
 async def DesativateClass(
     id_class: int,
     session: Session = Depends(get_session),
-    user = Depends(verificate_token) ):
+    user = Depends(verificate_token)
+    ):
     result = await desativateClass(
         id_class=id_class,
         session=session,
@@ -54,7 +57,8 @@ async def DesativateClass(
 async def ActivateClass(
     id_class: int,
     session: Session = Depends(get_session),
-    user = Depends(verificate_token) ):
+    user = Depends(verificate_token)
+    ):
     result = await activateClass(
         id_class=id_class,
         session=session,
@@ -63,7 +67,8 @@ async def ActivateClass(
 
 @class_routes.get("/list-active")
 async def ListActiveClass(
-    session: Session = Depends(get_session)):
+    session: Session = Depends(get_session)
+    ):
     result = await listActiveClass(
         session=session)
     return result
@@ -71,7 +76,8 @@ async def ListActiveClass(
 @class_routes.get("/list-active-name/{name_class}")
 async def ListActiveClassByName(
     name_class: str,
-    session: Session = Depends(get_session)):
+    session: Session = Depends(get_session)
+    ):
     result = await listActiveClassByName(
         session=session,
         name_class=name_class)

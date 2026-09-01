@@ -1,17 +1,15 @@
 import os
 import httpx
-from fastapi import APIRouter, Depends, HTTPException
-from src.common.dependencies import get_session, verificate_token
-from sqlalchemy.orm import Session
+from fastapi import HTTPException
 from src.modules.hero.models import Hero
 from src.modules.hero_pack.models import HeroPack
-from src.modules.user.models import User
 from dotenv import load_dotenv
 
 load_dotenv()
 
 
-async def listAllHeroes(meta_personagem: int):
+async def listAllHeroes(
+        meta_personagem: int):
     api_key = os.getenv("API_KEY")
     headers = {"User-Agent": "NexusMarvelTower_v1.0"}
     
@@ -73,13 +71,21 @@ async def listAllHeroes(meta_personagem: int):
         "personagens": heroes_list
         }
 
-async def listHero(session, id_hero):
+async def listHero(
+        session,
+        id_hero):
     hero = session.query(Hero).filter(Hero.id == id_hero).first()
     return hero
 
-async def createHero(hero_schema_user, session, user):
+async def createHero(
+        hero_schema_user, 
+        session, 
+        user):
+    
     if not user.admin:
-        raise HTTPException(status_code=403,detail="Você não tem permissão para criar esse herói")
+        raise HTTPException(
+            status_code=403,
+            detail="Você não tem permissão para criar esse herói")
     
     id = hero_schema_user.id
     active = hero_schema_user.active
@@ -100,14 +106,17 @@ async def createHero(hero_schema_user, session, user):
         awser = await client.get(url, headers=headers)
         
     if awser.status_code != 200:
-        raise HTTPException(status_code=502, detail="Erro ao buscar dados na API externa.")
+        raise HTTPException(
+            status_code=502, 
+            detail="Erro ao buscar dados na API externa.")
         
     api_data = awser.json().get("results", [])
     
     if not api_data:
-        raise HTTPException(status_code=404, detail="Personagem não encontrado na Comic Vine.")
+        raise HTTPException(
+            status_code=404, 
+            detail="Personagem não encontrado na Comic Vine.")
     
-    # o primeiro resultado que a API achou
     first_result = api_data[0]
 
     origin_data = first_result.get("origin") or {}
@@ -141,9 +150,17 @@ async def createHero(hero_schema_user, session, user):
     session.refresh(new_hero)
     return {"mensagem": f"Herói cadastrado com sucesso "}
     
-async def addHeroPack(hero_pack_schema, session, user, id_hero):
+async def addHeroPack(
+        hero_pack_schema, 
+        session, 
+        user, 
+        id_hero):
+    
     if not user.admin:
-        raise HTTPException(status_code=403, detail="Você não tem permissão para adicionar um herói em um pacote!")
+        raise HTTPException(
+            status_code=403, 
+            detail="Você não tem permissão para adicionar um herói em um pacote!")
+    
     hero = id_hero
     pack = hero_pack_schema.pack
     active = hero_pack_schema.active
@@ -159,67 +176,102 @@ async def addHeroPack(hero_pack_schema, session, user, id_hero):
     session.refresh(final_hero_pack)
     return {"mensagem": f"Herói cadastrado no pacote com sucesso "}
 
-async def desativateHeroPack(session, id_hero_pack, user):
+async def desativateHeroPack(
+        session, 
+        id_hero_pack, 
+        user):
+    
     if not user.admin:
-        raise HTTPException(status_code=403,detail="Você não tem permissão para desativar esse pacote")
+        raise HTTPException(
+            status_code=403,
+            detail="Você não tem permissão para desativar esse pacote")
     
     hero_pack = session.query(HeroPack).filter(HeroPack.id == id_hero_pack).first()
 
     if not hero_pack:
-        raise HTTPException(status_code=404, detail="Pacote não encontrado!")
+        raise HTTPException(
+            status_code=404, 
+            detail="Pacote não encontrado!")
     
     hero_pack.active = False
     session.commit()
     return {"mensagem": "Herói em pacote desativado com sucesso!",
             "Pacote": hero_pack}
 
-async def activateHeroPack(session, id_hero_pack, user):
+async def activateHeroPack(
+        session, 
+        id_hero_pack, 
+        user):
+    
     if not user.admin:
-        raise HTTPException(status_code=403,detail="Você não tem permissão para ativar esse herói")
+        raise HTTPException(
+            status_code=403,
+            detail="Você não tem permissão para ativar esse herói")
     
     hero_pack = session.query(HeroPack).filter(HeroPack.id == id_hero_pack).first()
 
     if not hero_pack:
-        raise HTTPException(status_code=404, detail="Herói em pacote não encontrado!")
+        raise HTTPException(
+            status_code=404, 
+            detail="Herói em pacote não encontrado!")
     
     hero_pack.active = True
     session.commit()
     return {"mensagem": "Herói em pacote ativado com sucesso!",
             "Pacote": hero_pack}
 
-async def desativateHero(session, id_hero, user):
+async def desativateHero(
+        session, 
+        id_hero, 
+        user):
+    
     if not user.admin:
-        raise HTTPException(status_code=403,detail="Você não tem permissão para desativar esse herói")
+        raise HTTPException(
+            status_code=403,
+            detail="Você não tem permissão para desativar esse herói")
     
     hero = session.query(Hero).filter(Hero.id == id_hero).first()
 
     if not hero:
-        raise HTTPException(status_code=404, detail="Herói não encontrado!")
+        raise HTTPException(
+            status_code=404, 
+            detail="Herói não encontrado!")
     
     hero.active = False
     session.commit()
     return {"mensagem": "Herói desativado com sucesso!",
             "Herói": hero}
 
-async def activateHero(session, id_hero, user):
+async def activateHero(
+        session, 
+        id_hero, 
+        user):
+    
     if not user.admin:
-        raise HTTPException(status_code=403,detail="Você não tem permissão para ativar esse herói")
+        raise HTTPException(
+            status_code=403,
+            detail="Você não tem permissão para ativar esse herói")
     
     hero = session.query(Hero).filter(Hero.id == id_hero).first()
 
     if not hero:
-        raise HTTPException(status_code=404, detail="Herói não encontrado!")
+        raise HTTPException(
+            status_code=404, 
+            detail="Herói não encontrado!")
     
     hero.active = True
     session.commit()
     return {"mensagem": "Herói ativado com sucesso!",
             "Herói": hero}
 
-async def listActiveHero(session):
+async def listActiveHero(
+        session):
     hero = session.query(Hero).filter(Hero.active == True).all()
     return hero
 
-async def listActiveHeroByName(session, name_hero):
+async def listActiveHeroByName(
+        session, 
+        name_hero):
     hero = session.query(Hero).filter(
         Hero.name.icontains(name_hero),
         Hero.active == True

@@ -17,7 +17,8 @@ async def CreateDeck(
     id_hero2: int,
     id_hero3: int,
     id_hero4: int,
-    session: Session = Depends(get_session)):
+    session: Session = Depends(get_session)
+    ):
     result = await createDeck(
         id_user=id_user,
         id_hero1=id_hero1,
@@ -30,7 +31,8 @@ async def CreateDeck(
 @deck_routes.get("/list")
 async def ListAllDecks(
     session: Session = Depends(get_session),
-    user = Depends(verificate_token) ):
+    user = Depends(verificate_token)
+    ):
     result = await listAllDecks(
         session=session,
         user=user)
@@ -40,7 +42,8 @@ async def ListAllDecks(
 async def ListDeck(
     id_deck: int,
     session: Session = Depends(get_session),
-    user = Depends(verificate_token)):
+    user = Depends(verificate_token)
+    ):
     result = await listDeck(
         id_deck=id_deck,
         session=session,
@@ -50,7 +53,8 @@ async def ListDeck(
 @deck_routes.get("/list-decks")
 async def ListDecksByUser(
     session: Session = Depends(get_session),
-    user = Depends(verificate_token) ):
+    user = Depends(verificate_token)
+    ):
     result = await listDecksByUser(
         session=session,
         user=user)
@@ -60,7 +64,8 @@ async def ListDecksByUser(
 async def ListDeckByUser(
     id_deck: int,
     session: Session = Depends(get_session),
-    user = Depends(verificate_token)):
+    user = Depends(verificate_token)
+    ):
     result = await listDeckByUser(
         id_deck=id_deck,
         session=session,
@@ -71,7 +76,8 @@ async def ListDeckByUser(
 async def DesativateDeck(
     id_deck: int,
     id_user: int,
-    session: Session = Depends(get_session)):
+    session: Session = Depends(get_session)
+    ):
     result = await desativateDeck(
         id_deck=id_deck,
         session=session,
@@ -82,7 +88,8 @@ async def DesativateDeck(
 async def ActivateDeck(
     id_deck: int,
     id_user: int,
-    session: Session = Depends(get_session)):
+    session: Session = Depends(get_session)
+    ):
     result = await activateDeck(
         id_deck=id_deck,
         session=session,
@@ -92,7 +99,8 @@ async def ActivateDeck(
 @deck_routes.get("/list-active")
 async def ListActiveClass(
     session: Session = Depends(get_session),
-    user = Depends(verificate_token)):
+    user = Depends(verificate_token)
+    ):
     result = await listActiveDecks(
         session=session,
         user=user)
@@ -101,7 +109,8 @@ async def ListActiveClass(
 @deck_routes.get("/list-active-by-user")
 async def ListActiveClassByUser(
     session: Session = Depends(get_session),
-    user = Depends(verificate_token)):
+    user = Depends(verificate_token)
+    ):
     result = await listActiveDecksByUser(
         session=session,
         user=user)

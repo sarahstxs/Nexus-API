@@ -1,7 +1,5 @@
-from sqlalchemy import Column, String, Integer, Boolean, Float, ForeignKey, PrimaryKeyConstraint, DateTime, Nullable
+from sqlalchemy import Column, String, Integer, Boolean, ForeignKey
 from src.core.database import Base
-from src.modules.class_hero.models import ClassHero
-from src.modules.hyper_attack.models import HyperAttack
 
 class Hero(Base):
     __tablename__ = "heroes"

@@ -12,15 +12,20 @@ async def ActiveTowerRun():
 
 @active_tower_run_routes.get("/list")
 async def ListAllActiveTowerRun(
-    session: Session = Depends(get_session)):
-    result = await listAllActiveTowerRun(session)
+    session: Session = Depends(get_session)
+    ):
+    result = await listAllActiveTowerRun(
+        session)
     return result
 
 @active_tower_run_routes.get("/list/{id}")
 async def ListActiveTowerRun(
     id_active_tower_run: int, 
-    session: Session = Depends(get_session)):
-    result = await listActiveTowerRun(session, id_active_tower_run)   
+    session: Session = Depends(get_session)
+    ):
+    result = await listActiveTowerRun(
+        session,
+        id_active_tower_run)   
     return result
 
 @active_tower_run_routes.post("/")
@@ -29,27 +34,40 @@ async def CreateActiveTowerRun(
     session: Session = Depends(get_session),
     user = Depends(verificate_token) 
     ):
-    result = await createActiveTowerRun(active_tower_run_schema=active_tower_run, session=session, user=user)
+    result = await createActiveTowerRun(
+        active_tower_run_schema=active_tower_run,
+        session=session,
+        user=user)
     return result
 
 @active_tower_run_routes.patch("/desativate/{id}")
 async def DesativateActiveTowerRun(
     id_active_tower_run: int,
     session: Session = Depends(get_session),
-    user = Depends(verificate_token) ):
-    result = await desativateActiveTowerRun(id_active_tower_run=id_active_tower_run, session=session, user=user)
+    user = Depends(verificate_token)
+    ):
+    result = await desativateActiveTowerRun(
+        id_active_tower_run=id_active_tower_run,
+        session=session,
+        user=user)
     return result
 
 @active_tower_run_routes.patch("/activate/{id}")
 async def ActivateActiveTowerRun(
     id_active_tower_run: int,
     session: Session = Depends(get_session),
-    user = Depends(verificate_token) ):
-    result = await activateActiveTowerRun(id_active_tower_run=id_active_tower_run, session=session, user=user)
+    user = Depends(verificate_token)
+    ):
+    result = await activateActiveTowerRun(
+        id_active_tower_run=id_active_tower_run, 
+        session=session, 
+        user=user)
     return result
 
 @active_tower_run_routes.get("/list-active")
 async def ListActiveActiveTowerRun(
-    session: Session = Depends(get_session)):
-    result = await listActiveActiveTowerRun(session=session)
+    session: Session = Depends(get_session)
+    ):
+    result = await listActiveActiveTowerRun(
+        session=session)
     return result
