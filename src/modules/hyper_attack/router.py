@@ -1,5 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
-import httpx
+from fastapi import APIRouter, Depends
 from src.modules.hyper_attack.service import listAllHyperAttacks, createHyperAttack, desativateHyperAttack, listHyperAttacks, activateHyperAttack, listActiveHyperAttack, listActiveHyperAttackByName
 from src.modules.user.service import verificate_token
 from src.modules.hyper_attack.schemas import HyperAttackSchema
@@ -7,7 +6,7 @@ from sqlalchemy.orm import Session
 from src.common.dependencies import get_session
 
 hyper_attack_routes = APIRouter(prefix="/hyper-attacks", tags=["hyper-attacks"])
-#
+
 @hyper_attack_routes.get("/")
 async def class_hero():
     return {"mensagem": "Você acessou a rota de hiper ataques!"}
