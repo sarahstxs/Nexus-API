@@ -91,13 +91,19 @@ async def createUser(
         user_schema: UserSchema, 
         session = Depends(get_session)):
 
-    usuario = session.query(User).filter(User.email == user_schema.email).first()
+    userEmail = session.query(User).filter(User.email == user_schema.email).first()
+    userUsername = session.query(User).filter(User.username == user_schema.username).first()
 
-    if usuario:
-        # Já existe usuário nessa sessão
+    if userEmail:
+        # Já existe usuário om esse e-mail nessa sessão
         raise HTTPException(
             status_code=400, 
-            detail="Email de usuário já cadastrado")
+            detail="Email already registered!")
+    if userUsername:
+        # Já existe usuário com esse username nessa sessão
+        raise HTTPException(
+            status_code=400, 
+            detail="Username already registered!")
     else:
         password = user_schema.password
         encrypted_password = bcrypt_context.hash(password)
@@ -115,7 +121,7 @@ async def createUser(
         )
         session.add(new_user)
         session.commit()
-        return {"mensagem": f"Usuário {user_schema.username} cadastrado com sucesso "}
+        return {"message": f"User {user_schema.username} registered successfully!"}
     
 async def login(
         login_schema: LoginSchema, 
@@ -125,7 +131,7 @@ async def login(
     if not user:
         raise HTTPException(
             status_code=400, 
-            detail= "Usuário não encontrado ou credenciais inválidas!")
+            detail= "User not found or invalid credentials!")
     else:
         access_token = create_token(str(user.id))
         refresh_token = create_token(str(user.id), duration_token=timedelta(days=7))
@@ -143,7 +149,7 @@ async def loginForm(
     if not user:
         raise HTTPException(
             status_code=400, 
-            detail= "Usuário não encontrado ou credenciais inválidas!")
+            detail= "User not found or invalid credentials!")
     else:
         access_token = create_token(str(user.id))
         return {
@@ -181,10 +187,10 @@ async def listAllUsers(
     if not user.admin:
         raise HTTPException(
             status_code=403,
-            detail="Você não tem permissão para listar usuários")
+            detail="You don't have permission to list users!")
     
     list = session.query(User).all()
-    return {"Usuários": list}
+    return {"Users": list}
 
 async def listUSer(
         session, 
@@ -194,7 +200,7 @@ async def listUSer(
     if not user.admin:
         raise HTTPException(
             status_code=403,
-            detail="Você não tem permissão para listar usuário")
+            detail="You don't have permission to list user!")
     
     user = session.query(User).filter(User.id == id_user).first()
     return user
@@ -207,7 +213,7 @@ async def upHighestLevel(
     if not user.admin:
         raise HTTPException(
             status_code=403, 
-            detail="Você não ter permissão para subir usuário de nível!")
+            detail="You don't have permission to promote users!")
     
     user = session.query(User).filter(User.id == id_user).first()
     next_level = user.highest_level + 1
@@ -215,8 +221,8 @@ async def upHighestLevel(
     if level:
         user.highest_level = next_level
         session.commit()
-        return {"mensagem": "O usuário subiu de nível máximo"}
-    return {"mensagem": "O usuário ja esta no nível máximo mais alto!"}
+        return {"message": "User has reached the maximum level!"}
+    return {"message": "User is already at the highest maximum level!"}
 
 async def upCurrentLevel(
         session, 
@@ -225,7 +231,7 @@ async def upCurrentLevel(
     if not user.admin:
         raise HTTPException(
             status_code=403, 
-            detail="Você não ter permissão para subir usuário de nível!")
+            detail="You don't have permission to promote users!")
     
     user = session.query(User).filter(User.id == id_user).first()
     next_level = user.current_level + 1
@@ -233,8 +239,8 @@ async def upCurrentLevel(
     if level:
         user.current_level = next_level
         session.commit()
-        return {"mensagem": "O usuário subiu de nível"}
-    return {"mensagem": "O usuário ja esta no nível mais alto!"}
+        return {"message": "User promoted successfully!"}
+    return {"message": "User is already at the highest level!"}
 
 async def downCurrentLevel(
         session, 
@@ -244,12 +250,12 @@ async def downCurrentLevel(
     if not user.admin:
         raise HTTPException(
             status_code=403, 
-            detail="Você não ter permissão para descer esse usuário de nível!")
+            detail="You don't have permission to demote this user!")
     
     user = session.query(User).filter(User.id == id_user).first()
     user.current_level = 1
     session.commit()
-    return {"mensagem": "O usuário desceu de nível"}
+    return {"message": "User demoted successfully!"}
 
 async def giveCoins(
         session, 
@@ -260,12 +266,12 @@ async def giveCoins(
     if not user.admin:
         raise HTTPException(
             status_code=403, 
-            detail="Você não ter permissão para dar coins a esse usuário!")
+            detail="You don't have permission to grant coins to this user!")
     
     user = session.query(User).filter(User.id == id_user).first()
     user.coins += coins
     session.commit()
-    return {"mensagem": f"O usuário recebeu {coins} coins"}
+    return {"message": f"User received {coins} coins successfully!"}
 
 async def removeCoins(
         session, 
@@ -275,15 +281,15 @@ async def removeCoins(
     if not user.admin:
         raise HTTPException(
             status_code=403, 
-            detail="Você não ter permissão para tirar coins a esse usuário!")
+            detail="You don't have permission to deduct coins from this user!")
     
     user = session.query(User).filter(User.id == id_user).first()
     
     if user.coins < coins:
-        return {"mensagem": "O usuário não tem dinheiro o sufuciente para isso"}
+        return {"message": "User does not have enough coins!"}
     user.coins -= coins
     session.commit()
-    return {"mensagem": f"O usuário perdeu {coins} coins"} 
+    return {"message": f"User lost {coins} coins successfully!"} 
     
 async def desativateUser(
         session, 
@@ -293,19 +299,19 @@ async def desativateUser(
     if not user.admin:
         raise HTTPException(
             status_code=403,
-            detail="Você não tem permissão para desativar esse usuário")
+            detail="You don't have permission to deactivate this user!")
     
     user = session.query(User).filter(User.id == id_user).first()
 
     if not user:
         raise HTTPException(
             status_code=404, 
-            detail="Usuário não encontrado!")
+            detail="User not found!")
     
     user.active = False
     session.commit()
-    return {"mensagem": "Usuário desativado com sucesso!",
-            "usuário": user}
+    return {"message": "User deactivated successfully!",
+            "User": user}
 
 async def activateUser(
         session, 
@@ -314,19 +320,19 @@ async def activateUser(
     if not user.admin:
         raise HTTPException(
             status_code=403,
-            detail="Você não tem permissão para ativar esse usuário")
+            detail="You don't have permission to activate this user!")
     
     user = session.query(User).filter(User.id == id_user).first()
 
     if not user:
         raise HTTPException(
             status_code=404, 
-            detail="Usuário não encontrado!")
+            detail="User not found!")
     
     user.active = True
     session.commit()
-    return {"mensagem": "Usuário ativado com sucesso!",
-            "Usuário": user}
+    return {"message": "User activated successfully!",
+            "User": user}
 
 async def buyPack(
         session, 
@@ -345,4 +351,4 @@ async def buyPack(
             id_pack=id_pack, 
             id_user=id_user)
         
-    return{"Mensagem": "Você não tem dinheiro!"}
+    return{"message": "You do not have enough coins!"}
