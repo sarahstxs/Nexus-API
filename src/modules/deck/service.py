@@ -16,7 +16,7 @@ async def createDeck(
         id_hero4):
     
     if (len({id_hero1, id_hero2, id_hero3, id_hero4}) < 4):
-        return {"mensagem": "Você não pode ter heróis repetidos no seu deck!"}
+        return {"message": "You cannot have duplicate heroes in your deck!"}
     
     create_date = datetime.now()
     user = id_user
@@ -77,7 +77,7 @@ async def addHeroDeck(
     if not user_hero:
         raise HTTPException(
             status_code=404,
-            detail="O usuário não tem esse herói em seu time!")
+            detail="The user doesn't have this hero on their team!")
     
     user_hero_slot = user_hero.id
     deck = id_deck
@@ -100,7 +100,7 @@ async def listAllDecks(
     if not user.admin:
         raise HTTPException(
             status_code=403,
-            detail="Você não tem permissão para desativar esse deck!")
+            detail="You don't have permission to deactivate this deck!")
 
     list = session.query(Deck).all()
     return {"Classes": list}
@@ -113,7 +113,7 @@ async def listDeck(
     if not user.admin:
         raise HTTPException(
             status_code=403,
-            detail="Você não tem permissão para desativar esse deck!")
+            detail="You don't have permission to deactivate this deck!")
     
     deck = session.query(Deck).filter(Deck.id == id_deck).first()
     return deck
@@ -140,11 +140,11 @@ async def desativateDeck(
     if not deck:
         raise HTTPException(
             status_code=404,
-            detail="deck não encontrado!")
+            detail="Deck not found!")
     
     deck.active = False
     session.commit()
-    return {"mensagem": "Deck desativado com sucesso!",
+    return {"message": "Deck deactivated successfully!",
             "Deck": deck}
 
 async def activateDeck(
@@ -156,11 +156,11 @@ async def activateDeck(
     if not deck:
         raise HTTPException(
             status_code=404,
-            detail="Deck não encontrado!")
+            detail="Deck not found!")
     
     deck.active = True
     session.commit()
-    return {"mensagem": "Deck ativado com sucesso!",
+    return {"message": "Deck activated successfully!",
             "Deck": deck}
 
 async def listActiveDecks(
@@ -169,7 +169,7 @@ async def listActiveDecks(
     if not user.admin:
         raise HTTPException(
             status_code=403,
-            detail="Você não tem permissão para desativar esse deck!")
+            detail="You don't have permission to deactivate this deck!")
      
     deck = session.query(Deck).filter(Deck.active == True).all()
     return deck
