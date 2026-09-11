@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 # Importe o roteador do arquivo que você criou (ajuste o nome do arquivo aqui)
 # from src.modules.comic_vine import router 
-from src.modules.comic_vine import router
 from src.modules.hero.router import hero_routes
 from src.modules.pack.router import pack_routes
 from src.modules.user.router import user_routes
@@ -22,7 +21,6 @@ load_dotenv()
 
 app = FastAPI()
 
-app.include_router(router)
 app.include_router(hero_routes)
 app.include_router(pack_routes)
 app.include_router(user_routes)
