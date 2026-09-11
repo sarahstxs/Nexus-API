@@ -24,7 +24,7 @@ def addHero(
     session.add(final_hero_uder_pack)
     session.commit()
     session.refresh(final_hero_uder_pack)
-    return {"mensagem": f"Herói de usuário cadastrado com sucesso!"}
+    return {"message": f"User hero registered successfully!"}
 
 def AddFragmentsHero(session, 
                      id_hero, 
@@ -33,7 +33,7 @@ def AddFragmentsHero(session,
     hero = session.query(Hero).filter(Hero.id == id_hero).first()
 
     if not user_hero:
-        raise HTTPException(status_code=404, detail="Usuário de herói não encontrado!")
+        raise HTTPException(status_code=404, detail="User hero not found!")
     
     fragments = user_hero.fragments + 1
     level = user_hero.level
@@ -43,32 +43,32 @@ def AddFragmentsHero(session,
             if level < 2:
                 user_hero.level = 2
                 user_hero.max_hp = user_hero.max_hp * 0.2
-                return {"mensagem": "Você subiu de nível para o nível 2!"}
+                return {"message": "You leveled up to level 2!"}
         case x if 5 < x >= 10:
             if level < 3:
                 user_hero.level = 3
                 user_hero.max_hp = user_hero.max_hp * 0.2
-                return {"mensagem": "Você subiu de nível para o nível 3!"}
+                return {"message": "You leveled up to level 3!"}
         case x if 10 < x >= 25:
             if level < 4:
                 user_hero.level = 4
                 user_hero.max_hp = user_hero.max_hp * 0.2
-                return {"mensagem": "Você subiu de nível para o nível 4!"}
+                return {"message": "You leveled up to level 4!"}
         case x if 25 < x >= 50:
             if level < 5:
                 user_hero.level = 5
                 user_hero.max_hp = user_hero.max_hp * 0.2
-                return {"mensagem": "Você subiu de nível para o nível 5!"}
+                return {"message": "You leveled up to level 5!"}
         case x if 50 < x >= 100:
             if level < 6:
                 user_hero.level = 6
                 user_hero.max_hp = user_hero.max_hp * 0.2
-                return {"mensagem": "Você subiu de nível para o nível 6!"}
+                return {"message": "You leveled up to level 6!"}
         case x if 100 < x >= 250:
             if level < 7:
                 user_hero.level = 7
                 user_hero.max_hp = user_hero.max_hp * 0.2
-                return {"mensagem": "Você subiu de nível para o nível 7!"}
+                return {"message": "You leveled up to level 7!"}
             
     user_hero.fragments = fragments
     session.commit()
@@ -83,17 +83,17 @@ async def loseHealth(
     if not user_hero:
         raise HTTPException(
             status_code=404, 
-            detail="Herói não encontrado na conte da usuário!")
+            detail="Hero not found on user account!")
     
     user_hero.current_hp -= damage
     if user_hero.current_hp <= 0:
         user_hero.current_hp = 0
         user_hero.alive = False
         session.commit()
-        return {"mensagem": f"O usuário perdeu {damage} pontos de vida e morreu!"}
+        return {"message": f"User took {damage} damage and died!"}
 
     session.commit()
-    return {"mensagem": f"O usuário perdeu {damage} pontos de vida!"}
+    return {"message": f"User took {damage} damage!"}
 
 async def acquireHealth(
         session, 
@@ -105,16 +105,16 @@ async def acquireHealth(
     if not user_hero:
         raise HTTPException(
             status_code=404, 
-            detail="Herói não encontrado na conte da usuário!")
+            detail="Hero not found on user account!")
     
     user_hero.current_hp += health
     if user_hero.current_hp >= user_hero.max_hp:
         user_hero.current_hp = user_hero.max_hp
         session.commit()
-        return {"mensagem": f"O usuário ganhou {health} pontos de vida e está com sua vida máxima!"}
+        return {"message": f"User recovered {health} health points and is at maximum health!"}
 
     session.commit()
-    return {"mensagem": f"O usuário ganhou {health} pontos de vida!"}
+    return {"message": f"User recovered {health} health points!"}
 
 async def reviveHero(
         session, 
@@ -125,9 +125,9 @@ async def reviveHero(
     if not user_hero:
         raise HTTPException(
             status_code=404, 
-            detail="Herói não encontrado na conte da usuário!")
+            detail="Hero not found on user account!")
     
     user_hero.current_hp = user_hero.max_hp
     user_hero.alive = True
     session.commit()
-    return {"mensagem": "O herói ressuscitou com sua vida máxima"}
+    return {"message": "Hero resurrected with maximum health!"}
