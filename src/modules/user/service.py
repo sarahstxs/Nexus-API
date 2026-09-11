@@ -120,7 +120,7 @@ async def createUser(
 async def login(
         login_schema: LoginSchema, 
         session = Depends(get_session)):
-    user = autenticate_user(login_schema.email, login_schema.password, session)
+    user = autenticate_user(login_schema.email,login_schema.password, session)
 
     if not user:
         raise HTTPException(

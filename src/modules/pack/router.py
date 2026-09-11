@@ -45,7 +45,7 @@ async def ListActivePackByName(
         name_pack=name_pack)
     return result
 
-@pack_routes.post("/")
+@pack_routes.post("/create-pack")
 async def CreatePack(
     pack: PackSchema, 
     session: Session = Depends(get_session),
