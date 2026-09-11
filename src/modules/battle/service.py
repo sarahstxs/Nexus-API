@@ -26,7 +26,7 @@ async def createBattle(
     session.commit()
     session.refresh(final_battle)
 
-    return {"mensagem": "Batalha registrada com sucesso!"}
+    return {"message": "Battle registered successfully!"}
 
 async def listAllBattles(
         session,
@@ -34,7 +34,7 @@ async def listAllBattles(
     if not user.admin:
         raise HTTPException(
             status_code=403,
-            detail="Você não tem permissão para desativar essa batalha!")
+            detail="You don't have permission to deactivate this battle!")
 
     list = session.query(Battle).all()
     return {"Batalhas": list}
@@ -47,7 +47,7 @@ async def listBattle(
     if not user.admin:
         raise HTTPException(
             status_code=403,
-            detail="Você não tem permissão para listar essa batalha!")
+            detail="You don't have permission to list this battle!")
     
     battle = session.query(Battle).filter(Battle.id == id_battle).first()
     return battle
