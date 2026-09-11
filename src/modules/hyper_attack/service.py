@@ -8,7 +8,7 @@ async def listAllHyperAttacks(
         session
         ):
     list = session.query(HyperAttack).all()
-    return {"Hiper ataque": list}
+    return {"Hyper attack": list}
 
 async def listHyperAttacks(
         session, 
@@ -26,7 +26,7 @@ async def createHyperAttack(
     if not user.admin:
         raise HTTPException(
             status_code=403,
-            detail="Você não tem permissão para criar hiper ataques!")
+            detail="You don't have permission to create hyper attacks!")
     
     name = hyper_attack_schema.name,
     effect = hyper_attack_schema.effect
@@ -44,7 +44,7 @@ async def createHyperAttack(
     session.add(final_hyper_attack)
     session.commit()
     session.refresh(final_hyper_attack)
-    return {"mensagem": f"Hiper ataque cadastrada com sucesso "}
+    return {"message": f"Hyper attack registered successfully!"}
 
 async def desativateHyperAttack(
         session, 
@@ -55,19 +55,19 @@ async def desativateHyperAttack(
     if not user.admin:
         raise HTTPException(
             status_code=403,
-            detail="Você não tem permissão para desativar esse hiper ataque")
+            detail="You don't have permission to deactivate this hyper attack!")
     
     hyper_attack = session.query(HyperAttack).filter(HyperAttack.id == id_hyper_attack).first()
 
     if not hyper_attack:
         raise HTTPException(
             status_code=404, 
-            detail="Hiper ataque não encontrada=o!")
+            detail="Hyper attack not found!")
     
     hyper_attack.active = False
     session.commit()
-    return {"mensagem": "Hiper ataque desativado com sucesso!",
-            "Classe": hyper_attack}
+    return {"message": "Hyper attack deactivated successfully!",
+            "Class": hyper_attack}
 
 async def activateHyperAttack(
         session, 
@@ -78,19 +78,19 @@ async def activateHyperAttack(
     if not user.admin:
         raise HTTPException(
             status_code=403,
-            detail="Você não tem permissão para ativar esse hiper ataque!")
+            detail="You don't have permission to activate this hyper attack!")
     
     hyper_attack = session.query(HyperAttack).filter(HyperAttack.id == id_hyper_attack).first()
 
     if not hyper_attack:
         raise HTTPException(
             status_code=404, 
-            detail="Hiper ataque não encontrado!")
+            detail="Hyper attack not found!")
     
     hyper_attack.active = True
     session.commit()
-    return {"mensagem": "Hiper ataque ativado com sucesso!",
-            "Hiper Ataque": hyper_attack}
+    return {"message": "Hyper attack activated successfully!",
+            "Hyper attack": hyper_attack}
 
 async def listActiveHyperAttack(
         session
