@@ -17,7 +17,7 @@ async def createPlace(
     if not user.admin:
         raise HTTPException(
             status_code=403,
-            detail="Você não tem permissão para criar lugares!")
+            detail="You don't have permission to create places!")
     
     name = place_schema.name
     image = place_schema.image
@@ -35,7 +35,7 @@ async def createPlace(
     session.add(final_place)
     session.commit()
     session.refresh(final_place)
-    return {"mensagem": f"Lugar cadastrado com sucesso "}
+    return {"message": f"Place registered successfully!"}
 
 async def desativatePlace(
         session, 
@@ -45,19 +45,19 @@ async def desativatePlace(
     if not user.admin:
         raise HTTPException(
             status_code=403,
-            detail="Você não tem permissão para desativar esse lugar")
+            detail="You don't have permission to deactivate this place!")
     
     place = session.query(Place).filter(Place.id == id_place).first()
 
     if not place:
         raise HTTPException(
             status_code=404, 
-            detail="Lugar não encontrado!")
+            detail="Place not found!")
     
     place.active = False
     session.commit()
-    return {"mensagem": "Lugar desativado com sucesso!",
-            "Lugar": place}
+    return {"message": "Place deactivated successfully!",
+            "Place": place}
 
 async def activatePlace(
         session, 
@@ -67,19 +67,19 @@ async def activatePlace(
     if not user.admin:
         raise HTTPException(
             status_code=403,
-            detail="Você não tem permissão para ativar esse lugar")
+            detail="You don't have permission to activate this place!")
     
     place = session.query(Place).filter(Place.id == id_place).first()
 
     if not place:
         raise HTTPException(
             status_code=404, 
-            detail="Lugar não encontrado!")
+            detail="Place not found!")
     
     place.active = True
     session.commit()
-    return {"mensagem": "Lugar ativado com sucesso!",
-            "Lugar": place}
+    return {"message": "Place activated successfully!",
+            "Place": place}
 
 async def listPlace(
         session, 
@@ -90,7 +90,7 @@ async def listPlace(
 async def listActivePlace(
         session):
     place = session.query(Place).filter(Place.active == True).all()
-    return {"Lugar": place}
+    return {"Place": place}
 
 async def listActivePackByName(
         session, 
