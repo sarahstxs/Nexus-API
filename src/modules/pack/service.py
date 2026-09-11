@@ -18,7 +18,7 @@ async def createPack(
     if not user.admin:
         raise HTTPException(
             status_code=403,
-            detail="Você não tem permissão para criar pacotes!")
+            detail="You don't have permission to create packs!")
     
     name = pack_schema.name,
     deck = pack_schema.deck
@@ -36,7 +36,7 @@ async def createPack(
     session.add(final_pack)
     session.commit()
     session.refresh(final_pack)
-    return {"mensagem": f"Pacote cadastrado com sucesso "}
+    return {"message": f"Pack registered successfully!"}
 
 async def desativatePack(
         session, 
@@ -46,19 +46,19 @@ async def desativatePack(
     if not user.admin:
         raise HTTPException(
             status_code=403,
-            detail="Você não tem permissão para desativar esse pacote")
+            detail="You don't have permission to deactivate this pack!")
     
     pack = session.query(Pack).filter(Pack.id == id_pack).first()
 
     if not pack:
         raise HTTPException(
             status_code=404, 
-            detail="Pacote não encontrado!")
+            detail="Pack not found!")
     
     pack.active = False
     session.commit()
-    return {"mensagem": "Pacote desativado com sucesso!",
-            "Pacote": pack}
+    return {"message": "Pack deactivated successfully!",
+            "Pack": pack}
 
 async def activatePack(
         session, 
@@ -68,19 +68,19 @@ async def activatePack(
     if not user.admin:
         raise HTTPException(
             status_code=403,
-            detail="Você não tem permissão para ativar esse pacote")
+            detail="You don't have permission to activate this pack!")
     
     pack = session.query(Pack).filter(Pack.id == id_pack).first()
 
     if not pack:
         raise HTTPException(
             status_code=404, 
-            detail="Pacote não encontrado!")
+            detail="Pack not found!")
     
     pack.active = True
     session.commit()
-    return {"mensagem": "Pacote ativado com sucesso!",
-            "Pacote": pack}
+    return {"message": "Pack activated successfully!",
+            "Pack": pack}
 
 async def listPack(
         session, 
