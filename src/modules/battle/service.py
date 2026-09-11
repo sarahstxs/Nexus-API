@@ -37,7 +37,7 @@ async def listAllBattles(
             detail="You don't have permission to deactivate this battle!")
 
     list = session.query(Battle).all()
-    return {"Batalhas": list}
+    return {"Battles": list}
 
 async def listBattle(
         session,

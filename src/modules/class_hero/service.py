@@ -22,7 +22,7 @@ async def createClass(
     if not user.admin:
         raise HTTPException(
             status_code=403,
-            detail="Você não tem permissão para criar classes!")
+            detail="You don't have permission to create classes!")
     
     name = class_schema.name,
     special_attack_effect = class_schema.special_attack_effect
@@ -42,7 +42,7 @@ async def createClass(
     session.add(final_class)
     session.commit()
     session.refresh(final_class)
-    return {"mensagem": f"Classe cadastrada com sucesso "}
+    return {"message": f"Class registered successfully!"}
 
 async def desativateClass(
         session,
@@ -51,19 +51,19 @@ async def desativateClass(
     if not user.admin:
         raise HTTPException(
             status_code=403,
-            detail="Você não tem permissão para desativar essa classe")
+            detail="You don't have permission to deactivate this class!")
     
     class_hero = session.query(ClassHero).filter(ClassHero.id == id_class).first()
 
     if not class_hero:
         raise HTTPException(
             status_code=404,
-            detail="Classe não encontrada!")
+            detail="Class not found!")
     
     class_hero.active = False
     session.commit()
-    return {"mensagem": "Classe desativada com sucesso!",
-            "Classe": class_hero}
+    return {"message": "Class deactivated successfully!",
+            "Class": class_hero}
 
 async def activateClass(
         session,
@@ -72,17 +72,17 @@ async def activateClass(
     if not user.admin:
         raise HTTPException(
             status_code=403,
-            detail="Você não tem permissão para ativar essa classe!")
+            detail="You don't have permission to activate this class!")
     
     class_hero = session.query(ClassHero).filter(ClassHero.id == id_class).first()
 
     if not class_hero:
-        raise HTTPException(status_code=404, detail="Classe não encontrada!")
+        raise HTTPException(status_code=404, detail="Class not found!")
     
     class_hero.active = True
     session.commit()
-    return {"mensagem": "Classe ativada com sucesso!",
-            "Classe": class_hero}
+    return {"message": "Class activated successfully!",
+            "Class": class_hero}
 
 async def listActiveClass(
         session):
