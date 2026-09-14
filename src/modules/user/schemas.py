@@ -5,7 +5,7 @@ from datetime import datetime
 class UserSchema(BaseModel):
     username: str
     password: str
-    phone: str
+    # phone: str
     email: str
     admin: Optional[bool]
     active: Optional[bool]

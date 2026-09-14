@@ -16,10 +16,9 @@ class User(Base):
     create_date = Column("create_date", DateTime, nullable=False, unique=False)
     current_level = Column("current_level", Integer, ForeignKey("active_tower_runs.id"), nullable=False, unique=False)
 
-    def __init__(self, username, password, phone, email, admin,active, highest_level, create_date, current_level, coins=300):
+    def __init__(self, username, password, email, admin,active, highest_level, create_date, current_level, coins=300):
         self.username = username
         self.password = password
-        self.phone = phone
         self.email = email
         self.admin = admin
         self.active = active

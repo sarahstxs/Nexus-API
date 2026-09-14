@@ -110,7 +110,7 @@ async def createUser(
         new_user = User(
             username=user_schema.username,
             password=encrypted_password,
-            phone=user_schema.phone,
+            # phone=user_schema.phone,
             email=user_schema.email,
             admin=user_schema.admin,
             active=user_schema.active,
