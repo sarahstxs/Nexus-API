@@ -72,7 +72,10 @@ def sortedHeros(
         if choice <= 10:
             hero = random.choice(heroes_legendary)
         
-        heroes_selected.append(hero.name)
+        heroes_selected.append({
+            "name": hero.name,
+            "image_url": hero.image_hero  # Ajuste para o nome correto do campo no seu model Hero
+            })
         user_hero = session.query(UserHero).filter(UserHero.hero == hero.id, UserHero.user == id_user).first()
         if user_hero is None:
             addHero(
@@ -138,7 +141,8 @@ async def login(
         return {
             "access_token": access_token,
             "refresh_token": refresh_token,
-            "token_type": "Bearer"
+            "token_type": "Bearer",
+            "user_id": user.id
         }
     
 async def loginForm(
@@ -197,13 +201,13 @@ async def listUSer(
         id_user, 
         user):
     
-    if not user.admin:
+    if not user.admin and user.id != id_user:
         raise HTTPException(
             status_code=403,
             detail="You don't have permission to list user!")
     
-    user = session.query(User).filter(User.id == id_user).first()
-    return user
+    db_user = session.query(User).filter(User.id == id_user).first()
+    return db_user
 
 async def upHighestLevel(
         session, 
@@ -263,10 +267,10 @@ async def giveCoins(
         user, 
         coins):
     
-    if not user.admin:
-        raise HTTPException(
-            status_code=403, 
-            detail="You don't have permission to grant coins to this user!")
+    # if not user.admin:
+    #     raise HTTPException(
+    #         status_code=403, 
+    #         detail="You don't have permission to grant coins to this user!")
     
     user = session.query(User).filter(User.id == id_user).first()
     user.coins += coins

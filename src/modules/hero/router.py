@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends
-from src.modules.hero.service import listAllHeroes, createHero, addHeroPack, desativateHeroPack, activateHero, activateHeroPack, desativateHero, listHero,listActiveHero, listActiveHeroByName
+from fastapi import APIRouter, Depends, Query
+from src.modules.hero.service import listAllHeroes, createHero, addHeroPack, desativateHeroPack, activateHero, activateHeroPack, desativateHero, listHero,listActiveHero, listActiveHeroByName, listActiveHeroById
 from src.modules.user.service import verificate_token
 from src.modules.hero.schemas import HeroSchemaUser
 from src.modules.hero_pack.schemas import HeroPackSchema
@@ -13,9 +13,14 @@ async def hero():
     return {"mensagem": "Você acessou a rota de heróis!"}
 
 @hero_routes.get("/list-all-heroes")
-async def listHeroes():
-    result = await listAllHeroes(
-        10)
+async def list_heroes(
+    session: Session = Depends(get_session),
+    page: int = Query(1, ge=1),
+    limit: int = Query(12, ge=1)
+):
+    # Repassa os parâmetros de paginação para a sua função de negócio
+    result = await listAllHeroes(page=page, limit=limit, session=session)
+    
     return result
 
 @hero_routes.get("/list/{id}")
@@ -118,6 +123,16 @@ async def ListActiveHerpByName(
     session: Session = Depends(get_session)
     ):
     result = await listActiveHeroByName(
+        session=session,
+        name_hero=name_hero)
+    return result
+
+@hero_routes.get("/list-active-id/{id_hero}")
+async def ListActiveHerpById(
+    name_hero: str,
+    session: Session = Depends(get_session)
+    ):
+    result = await listActiveHeroById(
         session=session,
         name_hero=name_hero)
     return result

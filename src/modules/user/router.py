@@ -87,7 +87,7 @@ async def ListAllUsers(
         user=user)
     return result
 
-@user_routes.get("/list/{id}")
+@user_routes.get("/list/{id_user}")
 async def ListUser(
     id_user: int, 
     session: Session = Depends(get_session), 

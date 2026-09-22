@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends
-from src.modules.user_hero.service import loseHealth, acquireHealth, reviveHero
+from fastapi import APIRouter, Depends, Query
+from src.modules.user_hero.service import loseHealth, acquireHealth, reviveHero, listAllHeroes
 from sqlalchemy.orm import Session
 from src.common.dependencies import get_session
 
@@ -8,6 +8,18 @@ user_hero_routes = APIRouter(prefix="/user-heroes", tags=["user-heroes"])
 @user_hero_routes.get("/")
 async def pack():
     return {"mensagem": "Você acessou a rota de heróis do usuário!"}
+
+@user_hero_routes.get("/list-all-user-heroes")
+async def list_heroes(
+    id_user: int,
+    session: Session = Depends(get_session),
+    page: int = Query(1, ge=1),
+    limit: int = Query(12, ge=1)
+):
+    # Repassa os parâmetros de paginação para a sua função de negócio
+    result = await listAllHeroes(page=page, limit=limit, session=session, id_user = id_user)
+    
+    return result
 
 @user_hero_routes.patch("/lose-health/{id_user}/{id_hero}/{damage}")
 async def LoseHealth(

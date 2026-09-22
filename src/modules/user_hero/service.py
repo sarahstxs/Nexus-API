@@ -2,10 +2,39 @@ from fastapi import HTTPException
 from src.modules.user_hero.models import UserHero
 from src.modules.hero.models import Hero
 
+async def listAllHeroes(session, page: int, limit: int, id_user: int):
+    # 1. Calcula quantos heróis pular baseado na página
+    offset = (page - 1) * limit
+    
+    # 2. Busca os heróis do usuário aplicando a paginação (offset e limit)
+    # ATENÇÃO: Verifique se o campo do usuário na tabela UserHero é 'user' ou 'user_id'
+    heroes_db = session.query(UserHero)\
+        .filter(UserHero.user == id_user)\
+        .offset(offset)\
+        .limit(limit)\
+        .all()
+
+    lista_herois = []
+    
+    for user_hero in heroes_db:
+        # 3. Usa .first() para pegar o herói específico (já que o ID é único)
+        hero = session.query(Hero).filter(Hero.id == user_hero.hero).first()
+        
+        if hero:
+            lista_herois.append(hero.image_hero)
+
+    # 4. Retorna o JSON estruturado para o Android ler facilmente
+    return {
+        "page": page,
+        "limit": limit,
+        "images": lista_herois
+    }
+
 def addHero(
         session, 
         id_hero, 
-        id_user):    
+        id_user,
+        user_hero_schema):    
     hero = session.query(Hero).filter(Hero.id == id_hero).first()
 
     new_user_hero = {

@@ -7,69 +7,29 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+async def listAllHeroes(session,
+                        page: int,
+                         limit: int):
+    # 1. Calcula quantos heróis pular baseado na página
+    offset = (page - 1) * limit
+    
+    heroes_db = session.query(Hero).filter(Hero.active == True).all()
 
-async def listAllHeroes(
-        meta_personagem: int):
-    api_key = os.getenv("API_KEY")
-    headers = {"User-Agent": "NexusMarvelTower_v1.0"}
+    lista_imagens = []
     
-    heroes_list = []
-    offset = 0
-    limit_page = 100
-    meta_hero = meta_personagem
-    
-    async with httpx.AsyncClient(timeout=60.0) as client:
-        while len(heroes_list) < meta_hero:
-            url_external_api = (
-                f"https://comicvine.gamespot.com/api/characters/"
-                f"?api_key={api_key}&format=json&limit={limit_page}&offset={offset}"
-            )
-            
-            try:
-                awser = await client.get(url_external_api, headers=headers)
-            except (httpx.ReadTimeout, httpx.ConnectTimeout):
-                raise HTTPException(
-                    status_code=504,
-                    detail="The external Comic Vine API took too long to respond (Timeout). Please try again later."
-                )
-            
-            if awser.status_code != 200:
-                raise HTTPException(
-                    status_code=awser.status_code, 
-                    detail=f"he external API failed on the page with offset {offset}. Status code: {awser.status_code}"
-                )
-                
-            dados = awser.json()
-            results_list = dados.get("results", [])
-            
-            
-            if not results_list:
-                break
-                
-            for hero in results_list:
-                publisher_info = hero.get("publisher")
-                if publisher_info and isinstance(publisher_info, dict):
-                    name_publisher = publisher_info.get("name", "").strip()
-                    if name_publisher.lower() == "marvel":
-                        heroes_list.append({
-                            "nome": hero.get("name"),
-                            "resumo": hero.get("deck"),
-                            "imagem": hero.get("image", {}).get("original_url"),
-                            "editora": name_publisher
-                        })
-                        
-                        if len(heroes_list) >= meta_hero:
-                            break
-            
-            offset += limit_page
-            
-    if len(heroes_list) == 0:
-        return {"message": "No Marvel characters were found in the consulted pages."}
-        
+    for hero in heroes_db:
+        # Pega só a coluna/campo da imagem. (Ajuste 'hero.imagem' para o formato do seu DB)
+        url_imagem = hero.image_hero # ou hero['imagem'] se for dicionário
+        if url_imagem:
+            lista_imagens.append(url_imagem)
+
+    # 4. Retorna o JSON estruturado para o Android ler facilmente
     return {
-        "total": len(heroes_list),
-        "characters": heroes_list
-        }
+        "page": page,
+        "limit": limit,
+        "images": lista_imagens
+    }
+
 
 async def listHero(
         session,
@@ -274,6 +234,17 @@ async def listActiveHeroByName(
         name_hero):
     hero = session.query(Hero).filter(
         Hero.name.icontains(name_hero),
+        Hero.active == True
+    ).all()
+    
+    return hero
+
+async def listActiveHeroById(
+        session, 
+        id_hero):
+    
+    hero = session.query(Hero).filter(
+        Hero.id.icontains(id_hero),
         Hero.active == True
     ).all()
     
