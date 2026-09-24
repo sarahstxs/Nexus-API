@@ -1,10 +1,15 @@
 from fastapi import APIRouter, Depends, Query
-from src.modules.hero.service import listAllHeroes, createHero, addHeroPack, desativateHeroPack, activateHero, activateHeroPack, desativateHero, listHero,listActiveHero, listActiveHeroByName, listActiveHeroById
+from src.modules.hero.service import listAllHeroes, createHero, addHeroPack, desativateHeroPack, activateHero, activateHeroPack, desativateHero, listHero,listActiveHero, listActiveHeroByName, listActiveHeroById, listHeroComplete
 from src.modules.user.service import verificate_token
 from src.modules.hero.schemas import HeroSchemaUser
 from src.modules.hero_pack.schemas import HeroPackSchema
 from sqlalchemy.orm import Session
 from src.common.dependencies import get_session
+import traceback
+from src.modules.hero.models import Hero
+from src.modules.user_hero.models import UserHero
+from fastapi import HTTPException
+
 
 hero_routes = APIRouter(prefix="/heroes", tags=["heroes"])
 
@@ -24,7 +29,7 @@ async def list_heroes(
     return result
 
 @hero_routes.get("/list/{id}")
-async def ListHEro(
+async def ListHero(
     id_hero: int,
     session: Session = Depends(get_session)
     ):
@@ -32,6 +37,52 @@ async def ListHEro(
         id_hero=id_hero,
         session=session)
     return result
+
+@hero_routes.get("/list-complete-user-hero/{id_hero}/{id_user}")
+def ListUserHero(
+    id_hero: int,
+    id_user: int,
+    session: Session = Depends(get_session)
+):
+    try:
+        have = False
+
+        # Busca o herói
+        hero = session.query(Hero).filter(Hero.id == id_hero).first()
+
+        # Busca a relação do usuário com o herói
+        user_hero = session.query(UserHero).filter(
+            (UserHero.hero == id_hero) & (UserHero.user == id_user)
+        ).first()
+
+        # Função auxiliar para limpar os dados do SQLAlchemy e evitar erro de JSON
+        def model_to_dict(obj):
+            if not obj:
+                return None
+            # Remove chaves internas do SQLAlchemy (como _sa_instance_state)
+            return {k: v for k, v in obj.__dict__.items() if not k.startswith('_')}
+
+        hero_dict = model_to_dict(hero)
+        user_hero_dict = model_to_dict(user_hero)
+
+        if not user_hero:
+            return {
+                "hero": hero_dict,
+                "have": have
+            }
+        else:
+            have = True
+            return {
+                "hero": hero_dict,
+                "user_hero": user_hero_dict,
+                "have": have
+            }
+
+    except Exception as e:
+        # Força o erro a aparecer no terminal com o traceback completo
+        traceback.print_exc()
+        # Retorna o erro detalhado na resposta HTTP para você ler na hora
+        raise HTTPException(status_code=500, detail=str(e))
 
 @hero_routes.post("/create-hero")
 async def CreateHero(

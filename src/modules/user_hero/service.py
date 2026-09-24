@@ -7,7 +7,6 @@ async def listAllHeroes(session, page: int, limit: int, id_user: int):
     offset = (page - 1) * limit
     
     # 2. Busca os heróis do usuário aplicando a paginação (offset e limit)
-    # ATENÇÃO: Verifique se o campo do usuário na tabela UserHero é 'user' ou 'user_id'
     heroes_db = session.query(UserHero)\
         .filter(UserHero.user == id_user)\
         .offset(offset)\
@@ -17,20 +16,25 @@ async def listAllHeroes(session, page: int, limit: int, id_user: int):
     lista_herois = []
     
     for user_hero in heroes_db:
-        # 3. Usa .first() para pegar o herói específico (já que o ID é único)
+        # 3. Usa .first() para pegar o herói específico
         hero = session.query(Hero).filter(Hero.id == user_hero.hero).first()
         
         if hero:
-            lista_herois.append(hero.image_hero)
+            # ALTERAÇÃO AQUI: Em vez de adicionar só a string da imagem, 
+            # adicionamos um dicionário com o ID e a Imagem
+            lista_herois.append({
+                "id": hero.id,
+                "imageUrl": hero.image_hero
+            })
 
-    # 4. Retorna o JSON estruturado para o Android ler facilmente
+    # 4. Retorna o JSON estruturado para o Android
     return {
         "page": page,
         "limit": limit,
-        "images": lista_herois
+        "heroes": lista_herois # Mudei o nome da chave de 'images' para 'heroes' para fazer mais sentido
     }
 
-def addHero(
+async def addHero(
         session, 
         id_hero, 
         id_user,
@@ -55,7 +59,7 @@ def addHero(
     session.refresh(final_hero_uder_pack)
     return {"message": f"User hero registered successfully!"}
 
-def AddFragmentsHero(session, 
+async def AddFragmentsHero(session, 
                      id_hero, 
                      id_user):
     user_hero = session.query(UserHero).filter(UserHero.hero == id_hero, UserHero.user == id_user).first()

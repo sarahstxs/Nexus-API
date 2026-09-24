@@ -2,6 +2,7 @@ import os
 import httpx
 from fastapi import HTTPException
 from src.modules.hero.models import Hero
+from src.modules.user_hero.models import UserHero
 from src.modules.hero_pack.models import HeroPack
 from dotenv import load_dotenv
 
@@ -15,20 +16,47 @@ async def listAllHeroes(session,
     
     heroes_db = session.query(Hero).filter(Hero.active == True).all()
 
-    lista_imagens = []
+    lista_heroes = []
     
     for hero in heroes_db:
         # Pega só a coluna/campo da imagem. (Ajuste 'hero.imagem' para o formato do seu DB)
         url_imagem = hero.image_hero # ou hero['imagem'] se for dicionário
-        if url_imagem:
-            lista_imagens.append(url_imagem)
+        lista_heroes.append({
+        "id": hero.id,
+        "imageUrl": hero.image_hero
+    })
 
     # 4. Retorna o JSON estruturado para o Android ler facilmente
     return {
         "page": page,
         "limit": limit,
-        "images": lista_imagens
+        "heroes": lista_heroes
     }
+
+def listHeroComplete(session, id_hero: int, id_user: int):
+    have = False
+
+    # Busca o herói
+    hero = session.query(Hero).filter(Hero.id == id_hero).first()
+
+    # Correção: Adicionados os parênteses em volta de cada condição do filtro
+    user_hero = session.query(UserHero).filter(
+        (UserHero.hero == id_hero) & (UserHero.user == id_user)
+    ).first()
+
+    if not user_hero:
+        return {
+            "hero": {c.name: getattr(hero, c.name) for c in hero.__table__.columns} if hero else None,
+            "have": have
+        }
+    else:
+        have = True
+        return {
+            "hero": {c.name: getattr(hero, c.name) for c in hero.__table__.columns} if hero else None,
+            "user_hero": {c.name: getattr(user_hero, c.name) for c in user_hero.__table__.columns} if user_hero else None,
+            "have": have
+        }
+
 
 
 async def listHero(
