@@ -40,54 +40,56 @@ def autenticate_user(
         return False
     return user 
 
-def sortedHeros(
-        session, 
-        user_hero_schema, 
-        id_pack, 
-        id_user):
+def sortedHeros(session, user_hero_schema, id_pack, id_user):
     heroes = session.query(HeroPack).filter(HeroPack.pack == id_pack).all()
     
     heroes_common = []
     heroes_rare = []
     heroes_legendary = []
 
-    for hero in heroes:
-        hero_complete = session.query(Hero).filter(Hero.id == hero.hero).first()
-
-        match hero_complete.rarity:
-            case 1:
+    for item in heroes:
+        hero_complete = session.query(Hero).filter(Hero.id == item.hero).first()
+        if hero_complete:
+            if hero_complete.rarity == 1:
                 heroes_common.append(hero_complete)
-            case 2:
+            elif hero_complete.rarity == 2:
                 heroes_rare.append(hero_complete)
-            case 3:
+            elif hero_complete.rarity == 3:
                 heroes_legendary.append(hero_complete)
 
     heroes_selected = []
-    for i in range(4):
-        choice = int((random.random())*100)
-        if choice >= 50:
-            hero = random.choice(heroes_common)
-        if 11 <= choice <= 49:
-            hero = random.choice(heroes_rare)
-        if choice <= 10:
+    
+    for _ in range(4):
+        choice = int(random.random() * 100)
+        hero = None
+
+        # Sorteio seguro verificando se a lista não está vazia
+        if choice <= 10 and heroes_legendary:
             hero = random.choice(heroes_legendary)
+        elif 11 <= choice <= 49 and heroes_rare:
+            hero = random.choice(heroes_rare)
+        elif heroes_common:
+            hero = random.choice(heroes_common)
         
-        heroes_selected.append({
-            "name": hero.name,
-            "image_url": hero.image_hero  # Ajuste para o nome correto do campo no seu model Hero
+        # Fallback caso caia em uma categoria vazia
+        if not hero and heroes:
+            fallback_item = random.choice(heroes)
+            hero = session.query(Hero).filter(Hero.id == fallback_item.hero).first()
+
+        if hero:
+            heroes_selected.append({
+                "name": hero.name,
+                "image_url": hero.image_hero 
             })
-        user_hero = session.query(UserHero).filter(UserHero.hero == hero.id, UserHero.user == id_user).first()
-        if user_hero is None:
-            addHero(
-                session=session, 
-                id_hero=hero.id, 
-                id_user=id_user, 
-                user_hero_schema=user_hero_schema)
-        else:
-            AddFragmentsHero(
-                session=session, 
-                id_hero=user_hero.hero, 
-                id_user=user_hero.user)
+            
+            # Verifica se o usuário já tem o herói
+            user_hero = session.query(UserHero).filter(UserHero.hero == hero.id, UserHero.user == id_user).first()
+            
+            if user_hero is None:
+                addHero(session=session, id_hero=hero.id, id_user=id_user)
+            else:
+                AddFragmentsHero(session=session, id_hero=hero.id, id_user=id_user)
+
     return heroes_selected
 
 async def createUser(
@@ -338,21 +340,24 @@ async def activateUser(
     return {"message": "User activated successfully!",
             "User": user}
 
-async def buyPack(
-        session, 
-        id_user, 
-        id_pack, 
-        user_hero_schema=UserHeroSchema):
+async def buyPack(session, id_user, id_pack, user_hero_schema=None):
     user = session.query(User).filter(User.id == id_user).first()
     pack = session.query(Pack).filter(Pack.id == id_pack).first()
 
-    if user.coins >= pack.price:
-        user.coins -= pack.price
-        session.commit()
-        return sortedHeros(
-            session, 
-            user_hero_schema=user_hero_schema, 
-            id_pack=id_pack, 
-            id_user=id_user)
-        
-    return{"message": "You do not have enough coins!"}
+    if not user or not pack:
+        raise HTTPException(status_code=404, detail="User or Pack not found!")
+
+    if user.coins < pack.price:
+        return {"message": "You do not have enough coins!"}
+
+    user.coins -= pack.price
+    
+    heroes_selected = sortedHeros(
+        session=session, 
+        user_hero_schema=user_hero_schema, 
+        id_pack=id_pack, 
+        id_user=id_user
+    )
+    
+    session.commit()
+    return heroes_selected
