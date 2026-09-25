@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from src.modules.user.models import User
-from src.modules.user.service import createUser, login, loginForm, use_refresh_token, listActiveHyperAttackByName, listActiveUser, listAllUsers, listUSer, activateUser, desativateUser, upHighestLevel, upCurrentLevel, giveCoins, removeCoins, downCurrentLevel, buyPack
+from src.modules.user.service import createUser, login, loginForm, use_refresh_token, listActiveHyperAttackByName, listActiveUser, listAllUsers, listUSer, activateUser, desativateUser, upHighestLevel, upCurrentLevel, giveCoins, removeCoins, downCurrentLevel, buyPack, showRank
 from src.modules.user.schemas import UserSchema, LoginSchema
 from sqlalchemy.orm import Session
 from src.common.dependencies import get_session, verificate_token
@@ -198,3 +198,7 @@ async def BuyPack(
         id_pack=id_pack,
         id_user=id_user)
     return result
+
+@user_routes.get("/show-rank")
+async def get_rank(session: Session = Depends(get_session)):
+    return await showRank(session=session)
