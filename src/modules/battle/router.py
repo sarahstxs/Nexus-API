@@ -4,6 +4,11 @@ from src.modules.user.service import verificate_token
 from src.modules.battle.schemas import BattleSchema
 from sqlalchemy.orm import Session
 from src.common.dependencies import get_session
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from src.core.database import get_session
+from src.modules.battle.schemas import BattleActionSchema
+from src.modules.battle import service
 
 battle_routes = APIRouter(prefix="/battles", tags=["battles"])
 
@@ -70,3 +75,27 @@ async def ListBattleByUser(
         session=session,
         user=user)
     return result
+
+@battle_routes.post("/start")
+async def start_battle(
+    floor: int, 
+    place_id: int, 
+    hero1: int, 
+    hero2: int, 
+    hero3: int, 
+    hero4: int, 
+    hero5: int, 
+    hero6: int, 
+    session: Session = Depends(get_session), 
+    user = Depends(verificate_token)
+):
+    return await service.startBattle(session, user.id, floor, place_id, [hero1, hero2, hero3, hero4, hero5, hero6])
+
+@battle_routes.post("/turn")
+async def process_turn(
+    action: BattleActionSchema, 
+    state_data: dict, 
+    session: Session = Depends(get_session), 
+    user = Depends(verificate_token)
+):
+    return await service.processTurn(session, user.id, action, state_data)

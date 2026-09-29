@@ -1,7 +1,6 @@
 import os
 from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base, relationship
-from sqlalchemy_utils.types import ChoiceType
+from sqlalchemy.orm import declarative_base, sessionmaker
 from dotenv import load_dotenv
 
 # Carrega o arquivo .env
@@ -10,9 +9,22 @@ load_dotenv()
 # Pega a URL de forma segura
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-db = create_engine(DATABASE_URL)
+# Cria a conexão com o banco
+engine = create_engine(DATABASE_URL)
 
-#Cria a conexão com o banco
+# Alias para manter a compatibilidade com arquivos que importam 'db'
+db = engine
+
+# Cria a fábrica de sessões
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# Cria a Base para os modelos
 Base = declarative_base()
 
-engine = create_engine(DATABASE_URL)
+# Função de sessão para as rotas e dependências
+def get_session():
+    session = SessionLocal()
+    try:
+        yield session
+    finally:
+        session.close()
