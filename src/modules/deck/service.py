@@ -13,9 +13,11 @@ async def createDeck(
         id_hero1,
         id_hero2,
         id_hero3,
-        id_hero4):
+        id_hero4,
+        id_hero5,
+        id_hero6):
     
-    if (len({id_hero1, id_hero2, id_hero3, id_hero4}) < 4):
+    if (len({id_hero1, id_hero2, id_hero3, id_hero4, id_hero5, id_hero6}) < 4):
         return {"message": "You cannot have duplicate heroes in your deck!"}
     
     create_date = datetime.now()
@@ -41,29 +43,42 @@ async def createDeck(
         id_deck=id_deck,
         id_hero=id_hero1,
         id_user=id_user)
-    user_hero_selected.append(result.user_hero)
+    user_hero_selected.append(result.id)
 
     result = await addHeroDeck(
         session=session,
         id_deck=id_deck,
         id_hero=id_hero2,
         id_user=id_user)
-    user_hero_selected.append(result.user_hero)
+    user_hero_selected.append(result.id)
 
     result = await addHeroDeck(
         session=session,
         id_deck=id_deck,
         id_hero=id_hero3,
         id_user=id_user)
-    user_hero_selected.append(result.user_hero)
+    user_hero_selected.append(result.id)
 
     result = await addHeroDeck(
         session=session,
         id_deck=id_deck,
         id_hero=id_hero4,
         id_user=id_user)
-    user_hero_selected.append(result.user_hero)
+    user_hero_selected.append(result.id)
 
+    result = await addHeroDeck(
+        session=session,
+        id_deck=id_deck,
+        id_hero=id_hero5,
+        id_user=id_user)
+    user_hero_selected.append(result.id)
+
+    result = await addHeroDeck(
+        session=session,
+        id_deck=id_deck,
+        id_hero=id_hero6,
+        id_user=id_user)
+    user_hero_selected.append(result.id)
 
     return user_hero_selected
 
@@ -97,38 +112,41 @@ async def listAllDecks(
         session,
         user):
     
-    if not user.admin:
+    if not getattr(user, "admin", False):
         raise HTTPException(
             status_code=403,
-            detail="You don't have permission to deactivate this deck!")
+            detail="You don't have permission to view all decks!")
 
-    list = session.query(Deck).all()
-    return {"Classes": list}
+    decks = session.query(Deck).all()
+    return {"Classes": decks}
 
-async def listDeck(
-        session,
-        id_deck,
-        user):
-    
-    if not user.admin:
-        raise HTTPException(
-            status_code=403,
-            detail="You don't have permission to deactivate this deck!")
-    
+async def listDeck(session, id_deck, user):
     deck = session.query(Deck).filter(Deck.id == id_deck).first()
+    if not deck:
+        raise HTTPException(status_code=404, detail="Deck not found")
+    
+    user_id = user.id if hasattr(user, "id") else user
+    is_admin = getattr(user, "admin", False)
+
+    # Corrigido para utilizar a propriedade correta do modelo Deck (.user)
+    if deck.user != user_id and not is_admin:
+        raise HTTPException(status_code=403, detail="Permission denied")
+        
     return deck
 
 async def listDecksByUser(
         session,
         user):
-    deck = session.query(Deck).filter(Deck.user == user.id).all()
+    user_id = user.id if hasattr(user, "id") else user
+    deck = session.query(Deck).filter(Deck.user == user_id).all()
     return deck
 
 async def listDeckByUser(
         session,
         user,
         id_deck):
-    deck = session.query(Deck).filter(Deck.user == user.id, Deck.id == id_deck).first()
+    user_id = user.id if hasattr(user, "id") else user
+    deck = session.query(Deck).filter(Deck.user == user_id, Deck.id == id_deck).first()
     return deck
 
 async def desativateDeck(
@@ -166,10 +184,10 @@ async def activateDeck(
 async def listActiveDecks(
         session,
         user):
-    if not user.admin:
+    if not getattr(user, "admin", False):
         raise HTTPException(
             status_code=403,
-            detail="You don't have permission to deactivate this deck!")
+            detail="You don't have permission to view active decks!")
      
     deck = session.query(Deck).filter(Deck.active == True).all()
     return deck
@@ -177,6 +195,32 @@ async def listActiveDecks(
 async def listActiveDecksByUser(
         session,
         user):
-    deck = session.query(Deck).filter(Deck.active == True, Deck.user == user.id).all()
+    user_id = user.id if hasattr(user, "id") else user
+    deck = session.query(Deck).filter(Deck.active == True, Deck.user == user_id).all()
     return deck
 
+async def saveUserDeck(session, user, id_hero1, id_hero2, id_hero3, id_hero4, id_hero5, id_hero6):
+    user_id = user.id if hasattr(user, "id") else user
+
+    if (len({id_hero1, id_hero2, id_hero3, id_hero4, id_hero5, id_hero6}) < 4):
+        raise HTTPException(status_code=400, detail="You cannot have duplicate heroes in your deck!")
+
+    # Desativa os decks anteriores do usuário para manter apenas o atual ativo
+    old_decks = session.query(Deck).filter(Deck.user == user_id, Deck.active == True).all()
+    for d in old_decks:
+        d.active = False
+    session.commit()
+
+    # Cria o novo deck ativo
+    new_deck = Deck(user=user_id, active=True, create_date=datetime.now())
+    session.add(new_deck)
+    session.commit()
+    session.refresh(new_deck)
+
+    id_deck = new_deck.id
+    heroes = [id_hero1, id_hero2, id_hero3, id_hero4, id_hero5, id_hero6]
+
+    for hero_id in heroes:
+        await addHeroDeck(session=session, id_deck=id_deck, id_user=user_id, id_hero=hero_id)
+
+    return {"message": "Deck saved successfully!", "deck_id": id_deck}

@@ -363,7 +363,7 @@ async def buyPack(session, id_user, id_pack, user_hero_schema=None):
     return heroes_selected
 
 async def showRank(session):
-    users = session.query(User).order_by(User.current_level.desc()).limit(10).all()
+    users = session.query(User).order_by(User.highest_level.desc()).limit(10).all()
     
     ranking_list = []
     for position, user in enumerate(users, start=1):
