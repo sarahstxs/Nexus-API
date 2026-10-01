@@ -1,12 +1,11 @@
 from fastapi import HTTPException
 from src.modules.battle.models import Battle
 from datetime import datetime
-from fastapi import HTTPException
-import random
-from typing import List
 from src.modules.user_hero.models import UserHero
 from src.modules.place.models import Place
-from src.modules.battle.schemas import BattleActionSchema
+from src.modules.user.models import User
+
+from typing import List
 
 async def createBattle(
         session,
@@ -72,125 +71,89 @@ async def listBattleByUser(
     return battle
 
 async def startBattle(session, user_id, floor: int, place_id: int, deck_hero_ids: List[int]):
-    # 1. Carrega o Local (Place) para o plano de fundo e bônus de origem
-    place = session.query(Place.id, Place.name, Place.image, Place.effect).filter(Place.id == place_id).first()
+    print(f"\n--- INÍCIO DA BATALHA ---")
+    print(f"User ID autenticado: {user_id}")
+    print(f"IDs dos heróis recebidos do Android: {deck_hero_ids}")
+
+    # 1. Carrega o Local (Place) para o fundo da batalha
+    place = session.query(Place).filter(Place.id == place_id).first()
     if not place:
         raise HTTPException(status_code=404, detail="Place not found")
 
-    # 2. Valida e carrega exatamente os 6 heróis do deck do usuário
+    # 2. Valida se vieram 6 IDs
     if len(deck_hero_ids) != 6:
         raise HTTPException(status_code=400, detail="You must select exactly 6 heroes for battle!")
 
-    user_heroes = session.query(UserHero).filter(UserHero.id.in_(deck_hero_ids), UserHero.user == user_id).all()
-    if len(user_heroes) != 6:
-        raise HTTPException(status_code=400, detail="Some selected heroes were not found on your account!")
+    # 3. Procura os heróis na base de dados
+    # ATENÇÃO: Se na tua model UserHero o campo de relacionamento/FK do utilizador se chamar 'user_id' 
+    # em vez de 'user', deves alterar para: UserHero.user_id == user_id
+    user_heroes = session.query(UserHero).filter(
+        UserHero.hero.in_(deck_hero_ids), 
+        UserHero.user == user_id  # Altere para UserHero.user_id se necessário
+    ).all()
 
-    # 3. Gera os Inimigos com base no Andar (Floor) (Chefes a cada 5 andares ou equipes de 6 inimigos)
-    is_boss_floor = (floor % 5 == 0)
-    enemies = generate_enemies(floor, is_boss_floor)
+    found_ids = [h.id for h in user_heroes]
+    print(f"IDs encontrados na BD para este utilizador: {found_ids}")
+
+    if len(user_heroes) != 6:
+        missing_ids = [hid for hid in deck_hero_ids if hid not in found_ids]
+        print(f"⚠️ ERRO: Os seguintes IDs enviados não pertencem ao user_id {user_id} ou não existem: {missing_ids}")
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Alguns heróis não foram encontrados na sua conta (IDs em falta: {missing_ids})"
+        )
+
+    # 4. Carrega o utilizador para atualizar o nível e recompensas
+    user = session.query(User).filter(User.id == user_id).first()
+
+    # 5. Calcula o Poder Total da Equipa
+    player_power = 0
+    for h in user_heroes:
+        hp = getattr(h, 'max_hp', getattr(h, 'hp', 100))
+        atk = getattr(h, 'attack', 10)
+        player_power += hp + (atk * 3)
+
+    # 6. Calcula o Poder do Inimigo com base no Andar (Chefes a cada 5 andares)
+    is_boss = (floor % 5 == 0)
+    enemy_power = 100 + (floor * 150)
+    if is_boss:
+        enemy_power = int(enemy_power * 1.5)
+
+    # 7. Compara os poderes para definir o resultado
+    is_victory = player_power >= enemy_power
+
+    # 8. Se vencer, atualiza o nível e moedas na base de dados
+    if is_victory and user:
+    
+    # CORRIGIDO: Verificar 'current_level' em vez de 'level'
+        if hasattr(user, 'current_level'):
+            print("Entrou no level")
+            user.current_level += 1
+        
+        # Garante que o highest_level também existe antes de comparar
+            if hasattr(user, 'highest_level') and user.current_level > user.highest_level:
+                user.highest_level = user.current_level
+                print("Entrou no mais")
+            
+        if hasattr(user, 'coins'):
+            print("Entrou no coins")
+            user.coins += (floor * 50) 
+        
+        session.commit()
+        session.refresh(user)
+
+        print(f"Resultado: {'Vitória' if is_victory else 'Derrota'} (Equipa: {player_power} vs Inimigo: {enemy_power})\n")
 
     return {
         "floor": floor,
-        "is_boss": is_boss_floor,
+        "is_boss": is_boss,
         "place": {
-            "name": place.name,
-            "image": place.image,
-            "effect": place.effect
+            "name": getattr(place, 'name', 'Torre de Desafio'),
+            "image": getattr(place, 'image', ''),
+            "effect": getattr(place, 'effect', None)
         },
-        "player_team": [
-            {
-                "id": h.id,
-                "hero_id": h.hero,
-                "current_hp": h.current_hp,
-                "max_hp": h.max_hp,
-                "energy": 0, # Começa com 0 de energia para a habilidade suprema
-                "alive": h.alive
-            } for h in user_heroes
-        ],
-        "enemy_team": enemies
-    }
-
-def generate_enemies(floor: int, is_boss: bool):
-    multiplier = 1 + (floor * 0.12)
-    if is_boss:
-        return [
-            {"name": f"Tower Boss Floor {floor}", "hp": int(800 * multiplier), "max_hp": int(800 * multiplier), "attack": int(70 * multiplier)}
-        ]
-    else:
-        # Gera uma equipe inimiga proporcional de até 6 oponentes comuns
-        num_enemies = min(6, 3 + (floor // 3))
-        return [
-            {
-                "name": f"Enemy Guard {i+1}", 
-                "hp": int(180 * multiplier), 
-                "max_hp": int(180 * multiplier), 
-                "attack": int(20 * multiplier)
-            } for i in range(num_enemies)
-        ]
-
-async def processTurn(session, user_id, action: BattleActionSchema, current_battle_state: dict):
-    hero_id = action.user_hero_id
-    action_type = action.action_type
-    target_idx = action.target_enemy_index
-    
-    enemies = current_battle_state["enemy_team"]
-    players = current_battle_state["player_team"]
-
-    # Valida alvo inimigo
-    if target_idx >= len(enemies) or enemies[target_idx]["hp"] <= 0:
-        raise HTTPException(status_code=400, detail="Invalid or dead target!")
-
-    target_enemy = enemies[target_idx]
-    log_messages = []
-
-    # Processa ação do herói do jogador
-    if action_type == "basic":
-        damage = 35
-        target_enemy["hp"] -= damage
-        log_messages.append(f"Seu herói atacou {target_enemy['name']} causando {damage} de dano!")
-    elif action_type == "special":
-        damage = 70
-        target_enemy["hp"] -= damage
-        log_messages.append(f"Habilidade Especial usada em {target_enemy['name']} ({damage} de dano)!")
-    elif action_type == "ultimate":
-        damage = 130
-        target_enemy["hp"] -= damage
-        log_messages.append(f"HABILIDADE SUPREMA! {damage} de dano em {target_enemy['name']}!")
-    elif action_type == "defend":
-        log_messages.append("Herói em posição defensiva!")
-
-    # Verifica se o inimigo alvo foi derrotado
-    if target_enemy["hp"] <= 0:
-        target_enemy["hp"] = 0
-        log_messages.append(f"{target_enemy['name']} foi derrotado!")
-
-    # Turno de retaliação dos inimigos vivos contra os 6 heróis do jogador
-    for enemy in enemies:
-        if enemy["hp"] > 0:
-            alive_players = [p for p in players if p["alive"]]
-            if alive_players:
-                defending_player = random.choice(alive_players)
-                dmg_dealt = enemy["attack"]
-                defending_player["current_hp"] -= dmg_dealt
-                if defending_player["current_hp"] <= 0:
-                    defending_player["current_hp"] = 0
-                    defending_player["alive"] = False
-                    log_messages.append(f"{enemy['name']} atacou e eliminou um herói do seu time!")
-                else:
-                    log_messages.append(f"{enemy['name']} causou {dmg_dealt} de dano ao seu time.")
-
-    # Condições de fim de turno (vitória ou derrota)
-    all_enemies_dead = all(e["hp"] <= 0 for e in enemies)
-    all_players_dead = all(not p["alive"] for p in players)
-
-    status = "ongoing"
-    if all_enemies_dead:
-        status = "victory"
-    elif all_players_dead:
-        status = "defeat"
-
-    return {
-        "battle_state": current_battle_state,
-        "logs": log_messages,
-        "status": status
+        "player_power": player_power,
+        "enemy_power": enemy_power,
+        "status": "victory" if is_victory else "defeat",
+        "message": "🎉 Vitória! Subiu de nível e superou o andar." if is_victory else "💀 Derrota! O inimigo era demasiado forte para este deck."
     }

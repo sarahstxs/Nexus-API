@@ -99,3 +99,18 @@ async def process_turn(
     user = Depends(verificate_token)
 ):
     return await service.processTurn(session, user.id, action, state_data)
+
+@battle_routes.post("/start")
+async def start_battle(
+    floor: int, 
+    place_id: int, 
+    hero1: int, 
+    hero2: int, 
+    hero3: int, 
+    hero4: int, 
+    hero5: int, 
+    hero6: int, 
+    session: Session = Depends(get_session), 
+    user = Depends(verificate_token)
+):
+    return await service.startBattle(session, user.id, floor, place_id, [hero1, hero2, hero3, hero4, hero5, hero6])
